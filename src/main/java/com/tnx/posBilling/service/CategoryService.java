@@ -58,7 +58,7 @@ public class CategoryService {
             newCategory.setImageUrl(photoUrl);
             newCategory.setParentCategory(myCategory);
             categoryRepository.save(newCategory);
-            categoryDTO = Utils.mapCategoryDtoToCategory(myCategory);
+            categoryDTO = Utils.mapCategoryDtoToCategory(newCategory);
             categoryDTO.setMessage("Success");
             categoryDTO.setStatusCode(200);
             return new ResponseEntity<>(categoryDTO, HttpStatus.CREATED);

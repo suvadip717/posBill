@@ -15,7 +15,7 @@ public class CategoryDTO {
     private String categoryLabel;
     private String imageUrl;
 
-    private Category parentCategory;
+    private Long parentCategory;
 
     private List<Category> subCategories;
 
