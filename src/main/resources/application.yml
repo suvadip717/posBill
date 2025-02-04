@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: posBilling
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/posB
+    username: root
+    password: password
+
+  jpa:
+    # show-sql: true
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+
+server:
+  port: 8080
+
+bucket-name: pos-bill-application
+aws:
+  s3:
+    access:
+      key: AKIAZ7SAK3YFYV3YOVGV
+    secret:
+      key: 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

@@ -1,0 +1,55 @@
+package com.tnx.posBilling.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.tnx.posBilling.dto.CategoryDTO;
+import com.tnx.posBilling.model.Category;
+import com.tnx.posBilling.service.CategoryService;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/categories")
+public class CategoryController {
+    @Autowired
+    private CategoryService categoryService;
+
+    @GetMapping
+    public ResponseEntity<List<Category>> getAllCategories() {
+        return categoryService.getAllCategories();
+    }
+
+    @GetMapping("/roots")
+    public ResponseEntity<List<Category>> getRootCategories() {
+        return categoryService.getRootCategories();
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<CategoryDTO> getCategoryById(@PathVariable Long id) {
+        CategoryDTO category = categoryService.getCategoryById(id);
+        return new ResponseEntity<>(category, HttpStatus.OK);
+    }
+
+    // @PostMapping
+    // public Category createCategory(@RequestBody Category category) {
+    // return categoryService.saveCategory(category);
+    // }
+
+    @PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity<CategoryDTO> createCategory(
+            @RequestParam String categoryLabel,
+            @RequestParam MultipartFile imageUrl,
+            @RequestParam String parentCategory) {
+        return categoryService.saveCategory(categoryLabel, imageUrl, parentCategory);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteCategory(@PathVariable Long id) {
+        return categoryService.deleteCategory(id);
+    }
+}

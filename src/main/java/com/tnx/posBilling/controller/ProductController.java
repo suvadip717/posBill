@@ -1,0 +1,60 @@
+package com.tnx.posBilling.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.tnx.posBilling.dto.ProductDTO;
+import com.tnx.posBilling.model.Product;
+import com.tnx.posBilling.service.ProductService;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/products")
+public class ProductController {
+    @Autowired
+    private ProductService productService;
+
+    @GetMapping
+    public ResponseEntity<List<Product>> getAllProducts() {
+        return productService.getAllProducts();
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ProductDTO> getProductById(@PathVariable String id) {
+        return productService.getProductById(id);
+    }
+
+    @PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    public ResponseEntity<ProductDTO> createProduct(
+            @RequestParam String productId,
+            @RequestParam String productLabel,
+            @RequestParam MultipartFile photo,
+            @RequestParam double unitPrice,
+            @RequestParam double mrp,
+            @RequestParam double discountAmount,
+            @RequestParam double discountPercentage,
+            @RequestParam String unit,
+            @RequestParam String skuCode,
+            @RequestParam double taxPercentage,
+            @RequestParam Integer stockQuantity,
+            @RequestParam String category) {
+        return productService.saveProduct(productId, productLabel, photo,
+                unitPrice, mrp, discountAmount,
+                discountPercentage, unit,
+                skuCode, taxPercentage, stockQuantity, category);
+    }
+
+    // @PostMapping
+    // public ProductDTO createProduct(@RequestBody Product product) {
+    // return productService.saveProduct(product);
+    // }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteProduct(@PathVariable String id) {
+        return productService.deleteProduct(id);
+    }
+}
