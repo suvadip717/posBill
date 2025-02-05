@@ -3,7 +3,6 @@ package com.tnx.posBilling.service;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.expression.ExpressionException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -11,7 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tnx.posBilling.dto.CategoryDTO;
-
+import com.tnx.posBilling.exceptions.ResourceNotFoundException;
 import com.tnx.posBilling.model.Category;
 
 import com.tnx.posBilling.repository.CategoryRepository;
@@ -28,18 +27,16 @@ public class CategoryService {
     @Autowired
     private ObjectMapper objectMapper;
 
-    public CategoryDTO getCategoryById(Long id) {
+    public ResponseEntity<CategoryDTO> getCategoryById(Long id) {
         CategoryDTO categoryDTO = new CategoryDTO();
-        try {
-            Category newCategory = categoryRepository.findById(id).get();
+        Category newCategory = categoryRepository.findById(id).orElse(null);
+        if (newCategory != null) {
             categoryDTO = Utils.mapCategoryDtoToCategory(newCategory);
             categoryDTO.setStatusCode(200);
             categoryDTO.setMessage("successful");
-        } catch (Exception e) {
-            categoryDTO.setStatusCode(500);
-            categoryDTO.setMessage("Category not found " + e.getMessage());
+            return new ResponseEntity<>(categoryDTO, HttpStatus.OK);
         }
-        return categoryDTO;
+        throw new ResourceNotFoundException("Category Id is not found");
     }
 
     // public Category saveCategory(Category category) {
@@ -65,7 +62,7 @@ public class CategoryService {
         } catch (Exception e) {
             categoryDTO.setMessage("Category is not saved " + e.toString());
             categoryDTO.setStatusCode(500);
-            throw new ExpressionException("Category is not save " + e.toString());
+            throw new RuntimeException("Category is not save " + e.toString());
         }
     }
 

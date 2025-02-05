@@ -3,7 +3,6 @@ package com.tnx.posBilling.service;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.expression.ExpressionException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -11,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tnx.posBilling.dto.ProductDTO;
+import com.tnx.posBilling.exceptions.ResourceNotFoundException;
 import com.tnx.posBilling.model.Category;
 import com.tnx.posBilling.model.Product;
 import com.tnx.posBilling.repository.ProductRepository;
@@ -32,33 +32,16 @@ public class ProductService {
     }
 
     public ResponseEntity<ProductDTO> getProductById(String id) {
-        ProductDTO productDTO = new ProductDTO();
-        try {
-            Product newProduct = productRepository.findById(id).get();
+        Product newProduct = productRepository.findById(id).orElse(null);
+        if (newProduct != null) {
+            ProductDTO productDTO = new ProductDTO();
             productDTO = Utils.mapProductdtoToProduct(newProduct);
             productDTO.setStatusCode(200);
             productDTO.setMessage("successful");
             return new ResponseEntity<>(productDTO, HttpStatus.FOUND);
-        } catch (Exception e) {
-            productDTO.setStatusCode(500);
-            productDTO.setMessage("Product not found " + e.getMessage());
-            throw new ExpressionException("Product is not found " + e.toString());
         }
+        throw new ResourceNotFoundException("Product Id is not found");
     }
-
-    // public ProductDTO saveProduct(Product product) {
-    // ProductDTO productDTO = new ProductDTO();
-    // try {
-    // productRepository.save(product);
-    // productDTO = Utils.mapProductdtoToProduct(product);
-    // productDTO.setStatusCode(200);
-    // productDTO.setMessage("successful");
-    // } catch (Exception e) {
-    // productDTO.setStatusCode(500);
-    // productDTO.setMessage("Error saving product " + e.getMessage());
-    // }
-    // return productDTO;
-    // }
 
     public ResponseEntity<ProductDTO> saveProduct(String productId, String productLabel, MultipartFile photo,
             double unitPrice,
@@ -91,7 +74,7 @@ public class ProductService {
         } catch (Exception e) {
             productDTO.setStatusCode(500);
             productDTO.setMessage("Error saving product " + e.getMessage());
-            throw new ExpressionException("Product is not save " + e.toString());
+            throw new RuntimeException("Product is not save " + e.toString());
         }
     }
 
