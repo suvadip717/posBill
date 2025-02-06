@@ -6,14 +6,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tnx.posBilling.model.Cart;
+import com.tnx.posBilling.model.CartItem;
 import com.tnx.posBilling.service.CartService;
 
 @RestController
@@ -50,5 +53,37 @@ public class CartController {
     @PutMapping("/{id}")
     public ResponseEntity<Cart> updateCart(@PathVariable String id, @RequestBody Cart newCart) {
         return cartService.updateCart(id, newCart);
+    }
+
+    @PatchMapping("/add-product/{cartId}")
+    public ResponseEntity<Cart> addProductToCart(
+            @PathVariable String cartId,
+            @RequestParam String productId,
+            @RequestParam int quantity
+    // @RequestParam double rate,
+    // @RequestParam double discount,
+    // @RequestParam double totalAmount
+    ) {
+
+        // return cartService.addProductToCart(cartId, productId, quantity, rate,
+        // discount, totalAmount);
+        return cartService.addProductToCart(cartId, productId, quantity);
+    }
+    // @PostMapping("/add-product/{cartId}")
+    // public ResponseEntity<Cart> addProductToCart(
+    // @PathVariable String cartId,
+    // @RequestBody CartItem cartItem) {
+
+    // return cartService.addProductToCart(cartId,
+    // cartItem.getProduct().getProductId(), cartItem.getQuantity());
+    // }
+
+    @DeleteMapping("/remove-product/{cartId}")
+    public ResponseEntity<Cart> removeProductFromCart(
+            @PathVariable String cartId,
+            @RequestParam String productId) {
+
+        Cart updatedCart = cartService.removeProductFromCart(cartId, productId);
+        return ResponseEntity.ok(updatedCart);
     }
 }

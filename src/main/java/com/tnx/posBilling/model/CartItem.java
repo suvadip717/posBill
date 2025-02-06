@@ -18,6 +18,9 @@ public class CartItem {
     private Long id;
 
     private int quantity;
+    private double rate;
+    private double discount;
+    private double totalAmount;
 
     @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)

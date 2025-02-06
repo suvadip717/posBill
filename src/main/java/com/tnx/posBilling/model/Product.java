@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 @Table(name = "product")
 @NoArgsConstructor
 public class Product {
-
     @Id
     private String productId;
 
