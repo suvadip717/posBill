@@ -1,5 +1,7 @@
 package com.tnx.posBilling.dto;
 
+import java.time.LocalDateTime;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.tnx.posBilling.model.Category;
 
@@ -20,6 +22,9 @@ public class ProductDTO {
     private String skuCode;
     private double taxPercentage;
     private Integer stockQuantity;
+
+    private LocalDateTime create;
+    private LocalDateTime update;
     @JsonBackReference
     private Category category;
 }

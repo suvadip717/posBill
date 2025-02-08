@@ -1,16 +1,20 @@
-package com.tnx.posBilling.service;
+package com.tnx.posBilling.service.impl;
 
 import java.util.List;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
+import com.tnx.posBilling.model.Cart;
+import com.tnx.posBilling.service.interfaces.CartService;
+
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
 
 import com.tnx.posBilling.exceptions.ResourceNotFoundException;
-import com.tnx.posBilling.model.Cart;
 import com.tnx.posBilling.model.CartItem;
 import com.tnx.posBilling.model.Product;
 import com.tnx.posBilling.repository.CartItemRepository;
@@ -20,7 +24,8 @@ import com.tnx.posBilling.repository.ProductRepository;
 import jakarta.transaction.Transactional;
 
 @Service
-public class CartService {
+public class CartServiceImpl implements CartService {
+
     @Autowired
     private ProductRepository productRepository;
 
@@ -65,7 +70,8 @@ public class CartService {
     }
 
     public double calculateFinalAmount(Cart cart) {
-        return calculateTotalPrice(cart) + cart.getDeliveryCharge() - cart.getDiscountAmount();
+        return calculateTotalPrice(cart) + cart.getDeliveryCharge() -
+                cart.getDiscountAmount();
     }
 
     private void recalculateCart(Cart cart) {
@@ -83,11 +89,13 @@ public class CartService {
             totalPrice += item.getTotalAmount();
             totalDiscount += item.getTotalDiscount();
         }
-        totalPrice = totalPrice - cart.getDiscountAmount() + cart.getDeliveryCharge();
+        totalPrice = totalPrice - cart.getDiscountAmount() +
+                cart.getDeliveryCharge();
         cart.setTotalPrice(totalPrice);
         cart.setTotalDiscount(totalDiscount);
     }
 
+    @Override
     public ResponseEntity<Cart> createCart(Cart cart) {
         List<CartItem> updatedItems = cart.getItems().stream().map(item -> {
             Product product = productRepository.findById(item.getProduct().getProductId())
@@ -106,6 +114,7 @@ public class CartService {
         return new ResponseEntity<>(cartRepository.save(cart), HttpStatus.CREATED);
     }
 
+    @Override
     public ResponseEntity<Cart> getCartById(String cartId) {
         Cart cart = cartRepository.findById(cartId).orElse(null);
         if (cart != null) {
@@ -114,6 +123,7 @@ public class CartService {
         throw new ResourceNotFoundException("Cart id is not found");
     }
 
+    @Override
     public ResponseEntity<String> deleteCart(String cartId) {
         Cart cart = cartRepository.findById(cartId).orElse(null);
         if (cart != null) {
@@ -123,10 +133,12 @@ public class CartService {
         throw new ResourceNotFoundException("Cart id is not found");
     }
 
+    @Override
     public ResponseEntity<List<Cart>> allCart() {
         return new ResponseEntity<>(cartRepository.findAll(), HttpStatus.OK);
     }
 
+    @Override
     public ResponseEntity<Cart> updateCart(String cartId, Cart updatedCart) {
         Cart existingCart = cartRepository.findById(cartId).orElse(null);
         if (existingCart == null) {
@@ -172,7 +184,9 @@ public class CartService {
     }
 
     @Transactional
-    public ResponseEntity<Cart> addProductToCart(String cartId, String productId, int quantity, double rate,
+    @Override
+    public ResponseEntity<Cart> addProductToCart(String cartId, String productId,
+            int quantity, double rate,
             double discount, double totalAmount) {
 
         // Fetch the cart by ID
@@ -219,7 +233,8 @@ public class CartService {
             totalCartAmount += item.getTotalAmount();
             totalCartDiscount += item.getTotalDiscount();
         }
-        totalCartAmount = totalCartAmount + cart.getDeliveryCharge() - cart.getDiscountAmount();
+        totalCartAmount = totalCartAmount + cart.getDeliveryCharge() -
+                cart.getDiscountAmount();
         cart.setTotalPrice(totalCartAmount);
         cart.setTotalDiscount(totalCartDiscount);
 
@@ -227,6 +242,7 @@ public class CartService {
     }
 
     @Transactional
+    @Override
     public Cart removeProductFromCart(String cartId, String productId) {
         // Fetch the cart by ID
         Cart cart = cartRepository.findById(cartId)
@@ -252,6 +268,7 @@ public class CartService {
     }
 
     @Transactional
+    @Override
     public Cart updateProductQuantityInCart(String cartId, String productId, int quantity) {
         // Fetch the cart by ID
         Cart cart = cartRepository.findById(cartId)
@@ -287,11 +304,11 @@ public class CartService {
             totalCartAmount += item.getTotalAmount();
             totalCartDiscount += item.getTotalDiscount();
         }
-        totalCartAmount = totalCartAmount + cart.getDeliveryCharge() - cart.getDiscountAmount();
+        totalCartAmount = totalCartAmount + cart.getDeliveryCharge() -
+                cart.getDiscountAmount();
         cart.setTotalPrice(totalCartAmount);
         cart.setTotalDiscount(totalCartDiscount);
 
         return cartRepository.save(cart);
     }
-
 }

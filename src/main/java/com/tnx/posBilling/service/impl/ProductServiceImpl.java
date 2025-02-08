@@ -1,4 +1,4 @@
-package com.tnx.posBilling.service;
+package com.tnx.posBilling.service.impl;
 
 import java.util.List;
 
@@ -14,10 +14,12 @@ import com.tnx.posBilling.exceptions.ResourceNotFoundException;
 import com.tnx.posBilling.model.Category;
 import com.tnx.posBilling.model.Product;
 import com.tnx.posBilling.repository.ProductRepository;
+import com.tnx.posBilling.service.AwsS3Service;
+import com.tnx.posBilling.service.interfaces.ProductService;
 import com.tnx.posBilling.utils.Utils;
 
 @Service
-public class ProductService {
+public class ProductServiceImpl implements ProductService {
     @Autowired
     private ProductRepository productRepository;
 
@@ -66,6 +68,7 @@ public class ProductService {
             newProduct.setTaxPercentage(taxPercentage);
             newProduct.setStockQuantity(stockQuantity);
             newProduct.setCategory(newCategory);
+            // newProduct.setCreate(LocalDateTime.now());
             productRepository.save(newProduct);
             productDTO = Utils.mapProductdtoToProduct(newProduct);
             productDTO.setStatusCode(200);

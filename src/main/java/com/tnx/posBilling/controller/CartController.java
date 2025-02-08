@@ -15,13 +15,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tnx.posBilling.model.Cart;
-import com.tnx.posBilling.service.CartService;
+import com.tnx.posBilling.service.impl.CartServiceImpl;
 
 @RestController
 @RequestMapping("/cart")
 public class CartController {
     @Autowired
-    private CartService cartService;
+    private CartServiceImpl cartService;
 
     @GetMapping("/calculate")
     public double calculateTotal(@RequestBody Cart cart) {

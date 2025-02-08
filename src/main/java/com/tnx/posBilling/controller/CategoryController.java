@@ -8,7 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.tnx.posBilling.dto.CategoryDTO;
 import com.tnx.posBilling.model.Category;
-import com.tnx.posBilling.service.CategoryService;
+import com.tnx.posBilling.service.impl.CategoryServiceImpl;
 
 import java.util.List;
 
@@ -16,7 +16,7 @@ import java.util.List;
 @RequestMapping("/categories")
 public class CategoryController {
     @Autowired
-    private CategoryService categoryService;
+    private CategoryServiceImpl categoryService;
 
     @GetMapping
     public ResponseEntity<List<Category>> getAllCategories() {

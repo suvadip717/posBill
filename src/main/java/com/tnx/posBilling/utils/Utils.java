@@ -20,6 +20,8 @@ public class Utils {
         productDTO.setTaxPercentage(product.getTaxPercentage());
         productDTO.setStockQuantity(product.getStockQuantity());
         productDTO.setCategory(product.getCategory());
+        // productDTO.setCreate(product.getCreate());
+        // productDTO.setUpdate(product.getUpdate());
         return productDTO;
     }
 
@@ -31,6 +33,8 @@ public class Utils {
         categoryDTO.setProducts(category.getProducts());
         categoryDTO.setSubCategories(category.getSubCategories());
         categoryDTO.setParentCategory(category.getParentCategory().getCategoryId());
+        // categoryDTO.setCreate(category.getCreate());
+        // categoryDTO.setUpdate(category.getUpdate());
         return categoryDTO;
     }
 

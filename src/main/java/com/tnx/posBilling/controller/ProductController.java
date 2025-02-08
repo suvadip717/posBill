@@ -8,7 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.tnx.posBilling.dto.ProductDTO;
 import com.tnx.posBilling.model.Product;
-import com.tnx.posBilling.service.ProductService;
+import com.tnx.posBilling.service.impl.ProductServiceImpl;
 
 import java.util.List;
 
@@ -16,7 +16,7 @@ import java.util.List;
 @RequestMapping("/products")
 public class ProductController {
     @Autowired
-    private ProductService productService;
+    private ProductServiceImpl productService;
 
     @GetMapping
     public ResponseEntity<List<Product>> getAllProducts() {

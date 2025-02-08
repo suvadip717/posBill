@@ -1,4 +1,4 @@
-package com.tnx.posBilling.service;
+package com.tnx.posBilling.service.impl;
 
 import java.util.List;
 
@@ -12,12 +12,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tnx.posBilling.dto.CategoryDTO;
 import com.tnx.posBilling.exceptions.ResourceNotFoundException;
 import com.tnx.posBilling.model.Category;
-
 import com.tnx.posBilling.repository.CategoryRepository;
+import com.tnx.posBilling.service.AwsS3Service;
+import com.tnx.posBilling.service.interfaces.CategoryService;
 import com.tnx.posBilling.utils.Utils;
 
 @Service
-public class CategoryService {
+public class CategoryServiceImpl implements CategoryService {
     @Autowired
     private CategoryRepository categoryRepository;
 
@@ -27,6 +28,7 @@ public class CategoryService {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Override
     public ResponseEntity<CategoryDTO> getCategoryById(Long id) {
         CategoryDTO categoryDTO = new CategoryDTO();
         Category newCategory = categoryRepository.findById(id).orElse(null);
@@ -43,6 +45,7 @@ public class CategoryService {
     // return categoryRepository.save(category);
     // }
 
+    @Override
     public ResponseEntity<CategoryDTO> saveCategory(String categoryLabel, MultipartFile imageUrl,
             String parentCategory) {
         CategoryDTO categoryDTO = new CategoryDTO();
@@ -66,15 +69,18 @@ public class CategoryService {
         }
     }
 
+    @Override
     public ResponseEntity<String> deleteCategory(Long id) {
         categoryRepository.deleteById(id);
         return new ResponseEntity<>("Category Deleted successfully", HttpStatus.OK);
     }
 
+    @Override
     public ResponseEntity<List<Category>> getAllCategories() {
         return new ResponseEntity<>(categoryRepository.findAll(), HttpStatus.OK);
     }
 
+    @Override
     public ResponseEntity<List<Category>> getRootCategories() {
         return new ResponseEntity<>(categoryRepository.findByParentCategoryIsNull(), HttpStatus.OK);
     }

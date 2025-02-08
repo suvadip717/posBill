@@ -1,5 +1,6 @@
 package com.tnx.posBilling.dto;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import com.tnx.posBilling.model.Category;
@@ -14,6 +15,8 @@ public class CategoryDTO {
     private Long categoryId;
     private String categoryLabel;
     private String imageUrl;
+    private LocalDateTime create;
+    private LocalDateTime update;
 
     private Long parentCategory;
 
