@@ -57,24 +57,15 @@ public class CartController {
     public ResponseEntity<Cart> addProductToCart(
             @PathVariable String cartId,
             @RequestParam String productId,
-            @RequestParam int quantity
-    // @RequestParam double rate,
-    // @RequestParam double discount,
-    // @RequestParam double totalAmount
-    ) {
+            @RequestParam int quantity,
+            @RequestParam double rate,
+            @RequestParam double discount,
+            @RequestParam double totalAmount) {
 
-        // return cartService.addProductToCart(cartId, productId, quantity, rate,
-        // discount, totalAmount);
-        return cartService.addProductToCart(cartId, productId, quantity);
+        return cartService.addProductToCart(cartId, productId, quantity, rate,
+                discount, totalAmount);
+        // return cartService.addProductToCart(cartId, productId, quantity);
     }
-    // @PostMapping("/add-product/{cartId}")
-    // public ResponseEntity<Cart> addProductToCart(
-    // @PathVariable String cartId,
-    // @RequestBody CartItem cartItem) {
-
-    // return cartService.addProductToCart(cartId,
-    // cartItem.getProduct().getProductId(), cartItem.getQuantity());
-    // }
 
     @DeleteMapping("/remove-product/{cartId}")
     public ResponseEntity<Cart> removeProductFromCart(
@@ -82,6 +73,16 @@ public class CartController {
             @RequestParam String productId) {
 
         Cart updatedCart = cartService.removeProductFromCart(cartId, productId);
+        return ResponseEntity.ok(updatedCart);
+    }
+
+    @PutMapping("/update-product/{cartId}")
+    public ResponseEntity<Cart> updateProductFromCart(
+            @PathVariable String cartId,
+            @RequestParam String productId,
+            @RequestParam Integer quantity) {
+
+        Cart updatedCart = cartService.updateProductQuantityInCart(cartId, productId, quantity);
         return ResponseEntity.ok(updatedCart);
     }
 }

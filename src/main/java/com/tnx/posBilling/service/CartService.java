@@ -60,7 +60,7 @@ public class CartService {
     public double calculateTotalDiscount(Cart cart) {
         return cart.getItems().stream()
                 // .mapToDouble(item -> item.getDiscount() * item.getQuantity())
-                .mapToDouble(item -> item.getDiscount())
+                .mapToDouble(item -> item.getTotalDiscount())
                 .sum();
     }
 
@@ -76,11 +76,12 @@ public class CartService {
             Product product = item.getProduct();
 
             item.setRate(product.getUnitPrice());
-            item.setDiscount(product.getDiscountAmount() * item.getQuantity());
+            item.setDiscount(product.getDiscountAmount());
+            item.setTotalDiscount(product.getDiscountAmount() * item.getQuantity());
             item.setTotalAmount((item.getRate() * item.getQuantity()));
 
             totalPrice += item.getTotalAmount();
-            totalDiscount += item.getDiscount();
+            totalDiscount += item.getTotalDiscount();
         }
         totalPrice = totalPrice - cart.getDiscountAmount() + cart.getDeliveryCharge();
         cart.setTotalPrice(totalPrice);
@@ -93,6 +94,9 @@ public class CartService {
                     .orElseThrow(() -> new ResourceNotFoundException(
                             "Product not found: " + item.getProduct().getProductId()));
             item.setProduct(product);
+            item.setDiscount(product.getDiscountAmount() / item.getQuantity());
+            item.setTotalDiscount(product.getDiscountAmount() * item.getQuantity());
+            item.setRate(product.getUnitPrice());
             return item;
         }).collect(Collectors.toList());
 
@@ -139,29 +143,38 @@ public class CartService {
                             "Product not found: " + item.getProduct().getProductId()));
             item.setProduct(product);
             item.setCart(existingCart);
+
+            // Update discount to match product's discountAmount
+            // item.setDiscount(product.getDiscountAmount());
+            item.setDiscount(item.getDiscount() / item.getQuantity());
+
+            // Calculate total discount per item
+            item.setTotalDiscount(item.getQuantity() * item.getDiscount());
             return item;
         }).collect(Collectors.toList());
 
         // Add the updated items
         existingCart.getItems().addAll(updatedItems);
 
-        // Recalculate total price and discount
+        // Recalculate total discount
+        double totalDiscount = existingCart.getItems().stream()
+                .mapToDouble(CartItem::getTotalDiscount)
+                .sum();
+        existingCart.setTotalDiscount(totalDiscount);
+
+        // Recalculate total price
         existingCart.setTotalPrice(calculateFinalAmount(existingCart));
         existingCart.setDeliveryCharge(updatedCart.getDeliveryCharge());
         existingCart.setDiscountAmount(updatedCart.getDiscountAmount());
-        existingCart.setTotalDiscount(calculateTotalDiscount(existingCart));
 
         cartRepository.save(existingCart);
         return new ResponseEntity<>(existingCart, HttpStatus.OK);
     }
 
     @Transactional
-    public ResponseEntity<Cart> addProductToCart(String cartId, String productId,
-            int quantity)
-    // public ResponseEntity<Cart> addProductToCart(String cartId, String
-    // ,productId,
-    // int quantity)
-    {
+    public ResponseEntity<Cart> addProductToCart(String cartId, String productId, int quantity, double rate,
+            double discount, double totalAmount) {
+
         // Fetch the cart by ID
         Cart cart = cartRepository.findById(cartId)
                 .orElseThrow(() -> new ResourceNotFoundException("Cart not found"));
@@ -176,83 +189,42 @@ public class CartService {
                 .findFirst();
 
         if (existingCartItem.isPresent()) {
-            // Update quantity and recalculate totals
+            // Update existing item
             CartItem cartItem = existingCartItem.get();
             cartItem.setQuantity(cartItem.getQuantity() + quantity);
-            cartItem.setRate(product.getUnitPrice());
-            cartItem.setDiscount(product.getDiscountAmount() * cartItem.getQuantity());
-            cartItem.setTotalAmount((cartItem.getRate() * cartItem.getQuantity()) -
-                    cartItem.getDiscount());
+            cartItem.setRate(rate);
+            // cartItem.setDiscount(discount);
+            cartItem.setTotalDiscount(cartItem.getDiscount() * cartItem.getQuantity());
+            // (cartItem.getDiscount() + (discount * quantity));
+            cartItem.setTotalAmount((cartItem.getRate() * cartItem.getQuantity()));
         } else {
             // Create a new cart item
             CartItem newCartItem = new CartItem();
             newCartItem.setCart(cart);
             newCartItem.setProduct(product);
             newCartItem.setQuantity(quantity);
-            newCartItem.setRate(product.getUnitPrice());
-            newCartItem.setDiscount(product.getDiscountAmount() * quantity);
-            newCartItem.setTotalAmount((newCartItem.getRate() * quantity) -
-                    newCartItem.getDiscount());
+            newCartItem.setRate(rate);
+            newCartItem.setDiscount(discount);
+            newCartItem.setTotalDiscount(discount * quantity);
+            newCartItem.setTotalAmount(rate * quantity);
 
             cart.getItems().add(newCartItem);
         }
 
-        // Recalculate the cart totals
-        recalculateCart(cart);
+        // Recalculate the cart totals based on the updated items
+        double totalCartAmount = 0;
+        double totalCartDiscount = 0;
+
+        for (CartItem item : cart.getItems()) {
+            totalCartAmount += item.getTotalAmount();
+            totalCartDiscount += item.getTotalDiscount();
+        }
+        totalCartAmount = totalCartAmount + cart.getDeliveryCharge() - cart.getDiscountAmount();
+        cart.setTotalPrice(totalCartAmount);
+        cart.setTotalDiscount(totalCartDiscount);
 
         return new ResponseEntity<>(cartRepository.save(cart), HttpStatus.OK);
     }
-
-    // @Transactional
-    // public ResponseEntity<Cart> addProductToCart(String cartId, String productId,
-    // int quantity, double rate,
-    // double discount, double totalAmount) {
-
-    // // Fetch the cart by ID
-    // Cart cart = cartRepository.findById(cartId)
-    // .orElseThrow(() -> new ResourceNotFoundException("Cart not found"));
-
-    // // Fetch the product by ID
-    // Product product = productRepository.findById(productId)
-    // .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
-
-    // // Check if the product already exists in the cart
-    // Optional<CartItem> existingCartItem = cart.getItems().stream()
-    // .filter(item -> item.getProduct().getProductId().equals(productId))
-    // .findFirst();
-
-    // // double finalRate = (rate > 0) ? rate : product.getUnitPrice();
-    // // double finalDiscount = (discount > 0) ? discount * quantity :
-    // product.getDiscountAmount() * quantity;
-    // // double finalTotalAmount = (totalAmount > 0) ? totalAmount : (finalRate *
-    // quantity) - finalDiscount;
-
-    // if (existingCartItem.isPresent()) {
-    // // Update existing item
-    // CartItem cartItem = existingCartItem.get();
-    // cartItem.setQuantity(cartItem.getQuantity() + quantity);
-    // cartItem.setRate(rate);
-    // cartItem.setDiscount(discount);
-    // cartItem.setTotalAmount((cartItem.getRate() * cartItem.getQuantity()) -
-    // cartItem.getDiscount());
-    // } else {
-    // // Create a new cart item
-    // CartItem newCartItem = new CartItem();
-    // newCartItem.setCart(cart);
-    // newCartItem.setProduct(product);
-    // newCartItem.setQuantity(quantity);
-    // newCartItem.setRate(rate);
-    // newCartItem.setDiscount(discount);
-    // newCartItem.setTotalAmount(totalAmount);
-
-    // cart.getItems().add(newCartItem);
-    // }
-
-    // // Recalculate the cart totals
-    // recalculateCart(cart);
-
-    // return new ResponseEntity<>(cartRepository.save(cart), HttpStatus.OK);
-    // }
 
     @Transactional
     public Cart removeProductFromCart(String cartId, String productId) {
@@ -278,4 +250,48 @@ public class CartService {
 
         return cartRepository.save(cart);
     }
+
+    @Transactional
+    public Cart updateProductQuantityInCart(String cartId, String productId, int quantity) {
+        // Fetch the cart by ID
+        Cart cart = cartRepository.findById(cartId)
+                .orElseThrow(() -> new ResourceNotFoundException("Cart not found"));
+
+        // Find the cart item associated with the product
+        Optional<CartItem> cartItemOptional = cart.getItems().stream()
+                .filter(item -> item.getProduct().getProductId().equals(productId))
+                .findFirst();
+
+        if (cartItemOptional.isPresent()) {
+            CartItem cartItem = cartItemOptional.get();
+
+            // If quantity is 0 or negative, remove the product from the cart
+            if (quantity <= 0) {
+                cart.getItems().remove(cartItem);
+                cartItemRepository.delete(cartItem); // Remove from DB
+            } else {
+                // Update quantity and recalculate item total
+                cartItem.setQuantity(quantity);
+                cartItem.setTotalDiscount(cartItem.getDiscount() * quantity);
+                cartItem.setTotalAmount(cartItem.getRate() * quantity);
+            }
+        } else {
+            throw new ResourceNotFoundException("Product not found in cart");
+        }
+
+        // Recalculate the cart totals after updating quantity
+        double totalCartAmount = 0;
+        double totalCartDiscount = 0;
+
+        for (CartItem item : cart.getItems()) {
+            totalCartAmount += item.getTotalAmount();
+            totalCartDiscount += item.getTotalDiscount();
+        }
+        totalCartAmount = totalCartAmount + cart.getDeliveryCharge() - cart.getDiscountAmount();
+        cart.setTotalPrice(totalCartAmount);
+        cart.setTotalDiscount(totalCartDiscount);
+
+        return cartRepository.save(cart);
+    }
+
 }

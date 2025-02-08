@@ -19,8 +19,8 @@ public class Cart {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    private Double totalDiscount;
     private Double totalPrice;
+    private Double totalDiscount;
     private double discountAmount;
     private double deliveryCharge;
 
