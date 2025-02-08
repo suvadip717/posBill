@@ -1,5 +1,6 @@
 package com.tnx.posBilling.service.impl;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,11 +58,38 @@ public class CategoryServiceImpl implements CategoryService {
             newCategory.setCategoryLabel(categoryLabel);
             newCategory.setImageUrl(photoUrl);
             newCategory.setParentCategory(myCategory);
+            newCategory.setCreatedAt(LocalDateTime.now());
             categoryRepository.save(newCategory);
             categoryDTO = Utils.mapCategoryDtoToCategory(newCategory);
             categoryDTO.setMessage("Success");
             categoryDTO.setStatusCode(200);
             return new ResponseEntity<>(categoryDTO, HttpStatus.CREATED);
+        } catch (Exception e) {
+            categoryDTO.setMessage("Category is not saved " + e.toString());
+            categoryDTO.setStatusCode(500);
+            throw new RuntimeException("Category is not save " + e.toString());
+        }
+    }
+
+    @Override
+    public ResponseEntity<CategoryDTO> updateCategory(Long categoryId, String categoryLabel, MultipartFile imageUrl,
+            String parentCategory) {
+        CategoryDTO categoryDTO = new CategoryDTO();
+        try {
+            Category existCategory = categoryRepository.findById(categoryId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Category is not found"));
+            String photoUrl = awsS3Service.saveImageToS3(imageUrl);
+            // Mapping parent category string to object
+            Category myCategory = objectMapper.readValue(parentCategory, Category.class);
+            existCategory.setCategoryLabel(categoryLabel);
+            existCategory.setImageUrl(photoUrl);
+            existCategory.setParentCategory(myCategory);
+            existCategory.setUpdatedAt(LocalDateTime.now());
+            categoryRepository.save(existCategory);
+            categoryDTO = Utils.mapCategoryDtoToCategory(existCategory);
+            categoryDTO.setMessage("Success");
+            categoryDTO.setStatusCode(200);
+            return new ResponseEntity<>(categoryDTO, HttpStatus.ACCEPTED);
         } catch (Exception e) {
             categoryDTO.setMessage("Category is not saved " + e.toString());
             categoryDTO.setStatusCode(500);

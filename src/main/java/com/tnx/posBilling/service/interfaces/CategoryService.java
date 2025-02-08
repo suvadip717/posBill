@@ -14,9 +14,13 @@ public interface CategoryService {
     public ResponseEntity<CategoryDTO> saveCategory(String categoryLabel, MultipartFile imageUrl,
             String parentCategory);
 
+    public ResponseEntity<CategoryDTO> updateCategory(Long categoryId, String categoryLabel, MultipartFile imageUrl,
+            String parentCategory);
+
     public ResponseEntity<String> deleteCategory(Long id);
 
     public ResponseEntity<List<Category>> getAllCategories();
 
     public ResponseEntity<List<Category>> getRootCategories();
+
 }

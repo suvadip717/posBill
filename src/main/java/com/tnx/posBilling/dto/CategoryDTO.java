@@ -15,8 +15,8 @@ public class CategoryDTO {
     private Long categoryId;
     private String categoryLabel;
     private String imageUrl;
-    private LocalDateTime create;
-    private LocalDateTime update;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     private Long parentCategory;
 

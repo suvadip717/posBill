@@ -20,4 +20,10 @@ public interface ProductService {
             Integer stockQuantity, String category);
 
     public ResponseEntity<String> deleteProduct(String id);
+
+    public ResponseEntity<ProductDTO> updateProduct(String productId, String productLabel, MultipartFile photo,
+            double unitPrice,
+            double mrp,
+            double discountAmount, double discountPercentage, String unit, String skuCode, double taxPercentage,
+            Integer stockQuantity, String category);
 }

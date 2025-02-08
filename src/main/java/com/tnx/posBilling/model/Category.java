@@ -3,6 +3,8 @@ package com.tnx.posBilling.model;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import jakarta.persistence.*;
+
+import java.time.LocalDateTime;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -20,6 +22,8 @@ public class Category {
 
     private String categoryLabel;
     private String imageUrl;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     @ManyToOne
     @JoinColumn(name = "parent_category_id")

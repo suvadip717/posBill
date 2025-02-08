@@ -1,5 +1,6 @@
 package com.tnx.posBilling.service.impl;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
@@ -111,6 +112,7 @@ public class CartServiceImpl implements CartService {
         cart.setItems(updatedItems);
         cart.setTotalPrice(calculateFinalAmount(cart));
         cart.setTotalDiscount(calculateTotalDiscount(cart));
+        cart.setCreatedAt(LocalDateTime.now());
         return new ResponseEntity<>(cartRepository.save(cart), HttpStatus.CREATED);
     }
 
@@ -161,7 +163,7 @@ public class CartServiceImpl implements CartService {
             item.setDiscount(item.getDiscount() / item.getQuantity());
 
             // Calculate total discount per item
-            item.setTotalDiscount(item.getQuantity() * item.getDiscount());
+            // item.setTotalDiscount(item.getQuantity() * item.getDiscount());
             return item;
         }).collect(Collectors.toList());
 
@@ -178,6 +180,7 @@ public class CartServiceImpl implements CartService {
         existingCart.setTotalPrice(calculateFinalAmount(existingCart));
         existingCart.setDeliveryCharge(updatedCart.getDeliveryCharge());
         existingCart.setDiscountAmount(updatedCart.getDiscountAmount());
+        existingCart.setUpdatedAt(LocalDateTime.now());
 
         cartRepository.save(existingCart);
         return new ResponseEntity<>(existingCart, HttpStatus.OK);
@@ -237,7 +240,7 @@ public class CartServiceImpl implements CartService {
                 cart.getDiscountAmount();
         cart.setTotalPrice(totalCartAmount);
         cart.setTotalDiscount(totalCartDiscount);
-
+        cart.setUpdatedAt(LocalDateTime.now());
         return new ResponseEntity<>(cartRepository.save(cart), HttpStatus.OK);
     }
 
@@ -263,7 +266,7 @@ public class CartServiceImpl implements CartService {
 
         // Recalculate cart totals after removal
         recalculateCart(cart);
-
+        cart.setUpdatedAt(LocalDateTime.now());
         return cartRepository.save(cart);
     }
 
@@ -308,7 +311,7 @@ public class CartServiceImpl implements CartService {
                 cart.getDiscountAmount();
         cart.setTotalPrice(totalCartAmount);
         cart.setTotalDiscount(totalCartDiscount);
-
+        cart.setUpdatedAt(LocalDateTime.now());
         return cartRepository.save(cart);
     }
 }

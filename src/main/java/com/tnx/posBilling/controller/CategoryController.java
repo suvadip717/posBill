@@ -46,6 +46,15 @@ public class CategoryController {
         return categoryService.saveCategory(categoryLabel, imageUrl, parentCategory);
     }
 
+    @PutMapping("/{categoryId}")
+    public ResponseEntity<CategoryDTO> updateCategory(
+            @PathVariable Long categoryId,
+            @RequestParam String categoryLabel,
+            @RequestParam MultipartFile imageUrl,
+            @RequestParam String parentCategory) {
+        return categoryService.updateCategory(categoryId, categoryLabel, imageUrl, parentCategory);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteCategory(@PathVariable Long id) {
         return categoryService.deleteCategory(id);

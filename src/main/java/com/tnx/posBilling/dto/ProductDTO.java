@@ -23,8 +23,8 @@ public class ProductDTO {
     private double taxPercentage;
     private Integer stockQuantity;
 
-    private LocalDateTime create;
-    private LocalDateTime update;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
     @JsonBackReference
     private Category category;
 }

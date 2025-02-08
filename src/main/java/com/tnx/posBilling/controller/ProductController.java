@@ -57,4 +57,24 @@ public class ProductController {
     public ResponseEntity<String> deleteProduct(@PathVariable String id) {
         return productService.deleteProduct(id);
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ProductDTO> updateProduct(
+            @PathVariable String id,
+            @RequestParam String productLabel,
+            @RequestParam MultipartFile photo,
+            @RequestParam double unitPrice,
+            @RequestParam double mrp,
+            @RequestParam double discountAmount,
+            @RequestParam double discountPercentage,
+            @RequestParam String unit,
+            @RequestParam String skuCode,
+            @RequestParam double taxPercentage,
+            @RequestParam Integer stockQuantity,
+            @RequestParam String category) {
+        return productService.updateProduct(id, productLabel, photo,
+                unitPrice, mrp, discountAmount,
+                discountPercentage, unit,
+                skuCode, taxPercentage, stockQuantity, category);
+    }
 }

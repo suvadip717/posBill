@@ -1,5 +1,6 @@
 package com.tnx.posBilling.service.impl;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,7 @@ public class ProductServiceImpl implements ProductService {
         return new ResponseEntity<>(productRepository.findAll(), HttpStatus.OK);
     }
 
+    @Override
     public ResponseEntity<ProductDTO> getProductById(String id) {
         Product newProduct = productRepository.findById(id).orElse(null);
         if (newProduct != null) {
@@ -45,6 +47,7 @@ public class ProductServiceImpl implements ProductService {
         throw new ResourceNotFoundException("Product Id is not found");
     }
 
+    @Override
     public ResponseEntity<ProductDTO> saveProduct(String productId, String productLabel, MultipartFile photo,
             double unitPrice,
             double mrp,
@@ -68,7 +71,7 @@ public class ProductServiceImpl implements ProductService {
             newProduct.setTaxPercentage(taxPercentage);
             newProduct.setStockQuantity(stockQuantity);
             newProduct.setCategory(newCategory);
-            // newProduct.setCreate(LocalDateTime.now());
+            newProduct.setCreatedAt(LocalDateTime.now());
             productRepository.save(newProduct);
             productDTO = Utils.mapProductdtoToProduct(newProduct);
             productDTO.setStatusCode(200);
@@ -81,6 +84,45 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
+    @Override
+    public ResponseEntity<ProductDTO> updateProduct(String productId, String productLabel, MultipartFile photo,
+            double unitPrice,
+            double mrp,
+            double discountAmount, double discountPercentage, String unit, String skuCode, double taxPercentage,
+            Integer stockQuantity, String category) {
+        ProductDTO productDTO = new ProductDTO();
+        try {
+            String imageUrl = aS3Service.saveImageToS3(photo);
+            Product existProduct = productRepository.findById(productId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Product is not found"));
+            // Mapping string to object
+            Category newCategory = objectMapper.readValue(category, Category.class);
+            existProduct.setProductId(productId);
+            existProduct.setImageUrl(imageUrl);
+            existProduct.setProductLabel(productLabel);
+            existProduct.setUnitPrice(unitPrice);
+            existProduct.setMrp(mrp);
+            existProduct.setDiscountAmount(discountAmount);
+            existProduct.setDiscountPercentage(discountPercentage);
+            existProduct.setUnit(unit);
+            existProduct.setSkuCode(skuCode);
+            existProduct.setTaxPercentage(taxPercentage);
+            existProduct.setStockQuantity(stockQuantity);
+            existProduct.setCategory(newCategory);
+            existProduct.setUpdatedAt(LocalDateTime.now());
+            productRepository.save(existProduct);
+            productDTO = Utils.mapProductdtoToProduct(existProduct);
+            productDTO.setStatusCode(200);
+            productDTO.setMessage("successful");
+            return new ResponseEntity<>(productDTO, HttpStatus.CREATED);
+        } catch (Exception e) {
+            productDTO.setStatusCode(500);
+            productDTO.setMessage("Error saving product " + e.getMessage());
+            throw new RuntimeException("Product is not save " + e.toString());
+        }
+    }
+
+    @Override
     public ResponseEntity<String> deleteProduct(String id) {
         productRepository.deleteById(id);
         return new ResponseEntity<>("Product deleted successfully", HttpStatus.OK);

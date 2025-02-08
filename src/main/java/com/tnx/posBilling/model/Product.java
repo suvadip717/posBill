@@ -1,5 +1,7 @@
 package com.tnx.posBilling.model;
 
+import java.time.LocalDateTime;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import jakarta.persistence.*;
@@ -24,6 +26,8 @@ public class Product {
     private String skuCode;
     private double taxPercentage;
     private Integer stockQuantity;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)

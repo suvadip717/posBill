@@ -1,5 +1,6 @@
 package com.tnx.posBilling.model;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -23,6 +24,8 @@ public class Cart {
     private Double totalDiscount;
     private double discountAmount;
     private double deliveryCharge;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
