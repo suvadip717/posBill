@@ -19,9 +19,15 @@ public class CartItem {
 
     private int quantity;
     private double rate;
+    private double discountPercentage;
     private double discount;
     private double taxAmount;
     private double totalDiscount;
+    private double taxableValue;
+    private double taxPercnt;
+    private double sGST;
+    private double cGST;
+    private double iGST;
     private double totalAmount;
 
     @ManyToOne

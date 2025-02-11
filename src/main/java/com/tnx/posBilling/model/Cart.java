@@ -20,11 +20,14 @@ public class Cart {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    private Double totalPrice;
     private Double totalDiscount;
     private double discountAmount;
     private double deliveryCharge;
-    private double totalTex;
+    private double totalSGST;
+    private double totalCGST;
+    private double totalIGST;
+    private double totalTax;
+    private Double totalAmount;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

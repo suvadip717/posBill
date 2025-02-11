@@ -18,7 +18,7 @@ public interface CartService {
     public ResponseEntity<Cart> updateCart(String cartId, Cart updatedCart);
 
     public ResponseEntity<Cart> addProductToCart(String cartId, String productId, int quantity, double rate,
-            double discount, double totalAmount);
+            double discountPercentage, double totalAmount, double taxPercnt);
 
     public Cart removeProductFromCart(String cartId, String productId);
 

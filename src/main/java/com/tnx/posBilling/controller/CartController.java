@@ -59,11 +59,12 @@ public class CartController {
             @RequestParam String productId,
             @RequestParam int quantity,
             @RequestParam double rate,
-            @RequestParam double discount,
-            @RequestParam double totalAmount) {
+            @RequestParam double discountPercentage,
+            @RequestParam double totalAmount,
+            @RequestParam double taxPercnt) {
 
         return cartService.addProductToCart(cartId, productId, quantity, rate,
-                discount, totalAmount);
+                discountPercentage, totalAmount, taxPercnt);
         // return cartService.addProductToCart(cartId, productId, quantity);
     }
 
