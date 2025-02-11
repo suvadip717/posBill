@@ -22,5 +22,5 @@ public interface CartService {
 
     public Cart removeProductFromCart(String cartId, String productId);
 
-    public Cart updateProductQuantityInCart(String cartId, String productId, int quantity);
+    public ResponseEntity<Cart> updateProductQuantityInCart(String cartId, String productId, int quantity);
 }

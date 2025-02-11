@@ -20,6 +20,7 @@ public class CartItem {
     private int quantity;
     private double rate;
     private double discount;
+    private double taxAmount;
     private double totalDiscount;
     private double totalAmount;
 

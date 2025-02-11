@@ -56,7 +56,7 @@ public class CartServiceImpl implements CartService {
                     }
                     double totalDiscount = item.getDiscount() * item.getQuantity();
                     item.setDiscount(totalDiscount);
-                    double totalAmount = item.getRate() * item.getQuantity();
+                    double totalAmount = item.getRate() * item.getQuantity() + item.getTaxAmount();
                     item.setTotalAmount(totalAmount);
                     return totalAmount;
                 })
@@ -70,9 +70,18 @@ public class CartServiceImpl implements CartService {
                 .sum();
     }
 
+    public double calculateTotalTex(Cart cart) {
+        return cart.getItems().stream()
+                // .mapToDouble(item -> item.getDiscount() * item.getQuantity())
+                .mapToDouble(item -> item.getTaxAmount())
+                .sum();
+    }
+
     public double calculateFinalAmount(Cart cart) {
         return calculateTotalPrice(cart) + cart.getDeliveryCharge() -
                 cart.getDiscountAmount();
+        // cart.getDiscountAmount() + cart.getTotalTex();
+        // return cart.getTotalTex();
     }
 
     private void recalculateCart(Cart cart) {
@@ -85,7 +94,7 @@ public class CartServiceImpl implements CartService {
             item.setRate(product.getUnitPrice());
             item.setDiscount(product.getDiscountAmount());
             item.setTotalDiscount(product.getDiscountAmount() * item.getQuantity());
-            item.setTotalAmount((item.getRate() * item.getQuantity()));
+            item.setTotalAmount((item.getRate() * item.getQuantity() + item.getTaxAmount()));
 
             totalPrice += item.getTotalAmount();
             totalDiscount += item.getTotalDiscount();
@@ -104,14 +113,16 @@ public class CartServiceImpl implements CartService {
                             "Product not found: " + item.getProduct().getProductId()));
             item.setProduct(product);
             item.setDiscount(product.getDiscountAmount() / item.getQuantity());
-            item.setTotalDiscount(product.getDiscountAmount() * item.getQuantity());
             item.setRate(product.getUnitPrice());
+            item.setTotalDiscount(product.getDiscountAmount() * item.getQuantity());
+            item.setTaxAmount((item.getRate() * item.getQuantity()) * (product.getTaxPercentage() / 100));
             return item;
         }).collect(Collectors.toList());
 
         cart.setItems(updatedItems);
-        cart.setTotalPrice(calculateFinalAmount(cart));
         cart.setTotalDiscount(calculateTotalDiscount(cart));
+        cart.setTotalTex(calculateTotalTex(cart));
+        cart.setTotalPrice(calculateFinalAmount(cart));
         cart.setCreatedAt(LocalDateTime.now());
         return new ResponseEntity<>(cartRepository.save(cart), HttpStatus.CREATED);
     }
@@ -164,6 +175,7 @@ public class CartServiceImpl implements CartService {
 
             // Calculate total discount per item
             // item.setTotalDiscount(item.getQuantity() * item.getDiscount());
+            item.setTaxAmount((item.getRate() * item.getQuantity()) * (product.getTaxPercentage() / 100));
             return item;
         }).collect(Collectors.toList());
 
@@ -177,17 +189,17 @@ public class CartServiceImpl implements CartService {
         existingCart.setTotalDiscount(totalDiscount);
 
         // Recalculate total price
-        existingCart.setTotalPrice(calculateFinalAmount(existingCart));
         existingCart.setDeliveryCharge(updatedCart.getDeliveryCharge());
         existingCart.setDiscountAmount(updatedCart.getDiscountAmount());
         existingCart.setUpdatedAt(LocalDateTime.now());
-
+        existingCart.setTotalTex(calculateTotalTex(existingCart));
+        existingCart.setTotalPrice(calculateFinalAmount(existingCart));
         cartRepository.save(existingCart);
         return new ResponseEntity<>(existingCart, HttpStatus.OK);
     }
 
-    @Transactional
     @Override
+    @Transactional
     public ResponseEntity<Cart> addProductToCart(String cartId, String productId,
             int quantity, double rate,
             double discount, double totalAmount) {
@@ -210,10 +222,9 @@ public class CartServiceImpl implements CartService {
             CartItem cartItem = existingCartItem.get();
             cartItem.setQuantity(cartItem.getQuantity() + quantity);
             cartItem.setRate(rate);
-            // cartItem.setDiscount(discount);
+            cartItem.setDiscount(discount);
             cartItem.setTotalDiscount(cartItem.getDiscount() * cartItem.getQuantity());
-            // (cartItem.getDiscount() + (discount * quantity));
-            cartItem.setTotalAmount((cartItem.getRate() * cartItem.getQuantity()));
+            cartItem.setTotalAmount((cartItem.getRate() * cartItem.getQuantity() + cartItem.getTaxAmount()));
         } else {
             // Create a new cart item
             CartItem newCartItem = new CartItem();
@@ -223,7 +234,8 @@ public class CartServiceImpl implements CartService {
             newCartItem.setRate(rate);
             newCartItem.setDiscount(discount);
             newCartItem.setTotalDiscount(discount * quantity);
-            newCartItem.setTotalAmount(rate * quantity);
+            newCartItem.setTaxAmount((rate * quantity) * (product.getTaxPercentage() / 100));
+            newCartItem.setTotalAmount(rate * quantity + newCartItem.getTaxAmount());
 
             cart.getItems().add(newCartItem);
         }
@@ -231,17 +243,21 @@ public class CartServiceImpl implements CartService {
         // Recalculate the cart totals based on the updated items
         double totalCartAmount = 0;
         double totalCartDiscount = 0;
+        double totalCartTax = 0;
 
         for (CartItem item : cart.getItems()) {
             totalCartAmount += item.getTotalAmount();
             totalCartDiscount += item.getTotalDiscount();
+            totalCartTax += item.getTaxAmount();
         }
-        totalCartAmount = totalCartAmount + cart.getDeliveryCharge() -
-                cart.getDiscountAmount();
+        totalCartAmount = totalCartAmount + cart.getDeliveryCharge() - cart.getDiscountAmount();
         cart.setTotalPrice(totalCartAmount);
         cart.setTotalDiscount(totalCartDiscount);
+        cart.setTotalTex(totalCartTax);
         cart.setUpdatedAt(LocalDateTime.now());
-        return new ResponseEntity<>(cartRepository.save(cart), HttpStatus.OK);
+
+        Cart updatedCart = cartRepository.save(cart);
+        return new ResponseEntity<>(updatedCart, HttpStatus.OK);
     }
 
     @Transactional
@@ -266,14 +282,14 @@ public class CartServiceImpl implements CartService {
 
         // Recalculate cart totals after removal
         recalculateCart(cart);
+        cart.setTotalTex(calculateTotalTex(cart));
         cart.setUpdatedAt(LocalDateTime.now());
         return cartRepository.save(cart);
     }
 
     @Transactional
     @Override
-    public Cart updateProductQuantityInCart(String cartId, String productId, int quantity) {
-        // Fetch the cart by ID
+    public ResponseEntity<Cart> updateProductQuantityInCart(String cartId, String productId, int quantity) {
         Cart cart = cartRepository.findById(cartId)
                 .orElseThrow(() -> new ResourceNotFoundException("Cart not found"));
 
@@ -293,7 +309,8 @@ public class CartServiceImpl implements CartService {
                 // Update quantity and recalculate item total
                 cartItem.setQuantity(quantity);
                 cartItem.setTotalDiscount(cartItem.getDiscount() * quantity);
-                cartItem.setTotalAmount(cartItem.getRate() * quantity);
+                cartItem.setTaxAmount(cartItem.getRate() * quantity * (cartItem.getProduct().getTaxPercentage() / 100));
+                cartItem.setTotalAmount((cartItem.getRate() * quantity) + cartItem.getTaxAmount());
             }
         } else {
             throw new ResourceNotFoundException("Product not found in cart");
@@ -302,16 +319,20 @@ public class CartServiceImpl implements CartService {
         // Recalculate the cart totals after updating quantity
         double totalCartAmount = 0;
         double totalCartDiscount = 0;
+        double totalCartTax = 0;
 
         for (CartItem item : cart.getItems()) {
             totalCartAmount += item.getTotalAmount();
             totalCartDiscount += item.getTotalDiscount();
+            totalCartTax += item.getTaxAmount();
         }
-        totalCartAmount = totalCartAmount + cart.getDeliveryCharge() -
-                cart.getDiscountAmount();
+        totalCartAmount = totalCartAmount + cart.getDeliveryCharge() - cart.getDiscountAmount();
         cart.setTotalPrice(totalCartAmount);
         cart.setTotalDiscount(totalCartDiscount);
+        cart.setTotalTex(totalCartTax);
         cart.setUpdatedAt(LocalDateTime.now());
-        return cartRepository.save(cart);
+
+        Cart updatedCart = cartRepository.save(cart);
+        return new ResponseEntity<>(updatedCart, HttpStatus.OK);
     }
 }

@@ -82,7 +82,6 @@ public class CartController {
             @RequestParam String productId,
             @RequestParam Integer quantity) {
 
-        Cart updatedCart = cartService.updateProductQuantityInCart(cartId, productId, quantity);
-        return ResponseEntity.ok(updatedCart);
+        return cartService.updateProductQuantityInCart(cartId, productId, quantity);
     }
 }

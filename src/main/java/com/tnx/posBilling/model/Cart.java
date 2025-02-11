@@ -24,6 +24,7 @@ public class Cart {
     private Double totalDiscount;
     private double discountAmount;
     private double deliveryCharge;
+    private double totalTex;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

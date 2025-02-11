@@ -54,7 +54,9 @@ public class CategoryServiceImpl implements CategoryService {
             Category newCategory = new Category();
             String photoUrl = awsS3Service.saveImageToS3(imageUrl);
             // Mapping parent category string to object
+            // Category myCategory = null;
             Category myCategory = objectMapper.readValue(parentCategory, Category.class);
+
             newCategory.setCategoryLabel(categoryLabel);
             newCategory.setImageUrl(photoUrl);
             newCategory.setParentCategory(myCategory);

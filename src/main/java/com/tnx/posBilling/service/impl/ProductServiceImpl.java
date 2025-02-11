@@ -30,6 +30,7 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Override
     public ResponseEntity<List<Product>> getAllProducts() {
         return new ResponseEntity<>(productRepository.findAll(), HttpStatus.OK);
     }
@@ -114,7 +115,7 @@ public class ProductServiceImpl implements ProductService {
             productDTO = Utils.mapProductdtoToProduct(existProduct);
             productDTO.setStatusCode(200);
             productDTO.setMessage("successful");
-            return new ResponseEntity<>(productDTO, HttpStatus.CREATED);
+            return new ResponseEntity<>(productDTO, HttpStatus.ACCEPTED);
         } catch (Exception e) {
             productDTO.setStatusCode(500);
             productDTO.setMessage("Error saving product " + e.getMessage());
