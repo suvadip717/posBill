@@ -18,7 +18,7 @@ public class CategoryDTO {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    private Long parentCategory;
+    private Category parentCategory;
 
     private List<Category> subCategories;
 

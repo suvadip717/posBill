@@ -34,7 +34,7 @@ public class Utils {
         categoryDTO.setCategoryLabel(category.getCategoryLabel());
         categoryDTO.setProducts(category.getProducts());
         categoryDTO.setSubCategories(category.getSubCategories());
-        categoryDTO.setParentCategory(category.getParentCategory().getCategoryId());
+        categoryDTO.setParentCategory(category.getParentCategory());
         categoryDTO.setCreatedAt(category.getCreatedAt());
         categoryDTO.setUpdatedAt(category.getUpdatedAt());
         return categoryDTO;

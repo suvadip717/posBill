@@ -44,7 +44,7 @@ public class ProductServiceImpl implements ProductService {
             productDTO = Utils.mapProductdtoToProduct(newProduct);
             productDTO.setStatusCode(200);
             productDTO.setMessage("successful");
-            return new ResponseEntity<>(productDTO, HttpStatus.FOUND);
+            return new ResponseEntity<>(productDTO, HttpStatus.OK);
         }
         throw new ResourceNotFoundException("Product Id is not found");
     }

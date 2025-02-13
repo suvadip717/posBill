@@ -42,10 +42,6 @@ public class CategoryServiceImpl implements CategoryService {
         throw new ResourceNotFoundException("Category Id is not found");
     }
 
-    // public Category saveCategory(Category category) {
-    // return categoryRepository.save(category);
-    // }
-
     @Override
     public ResponseEntity<CategoryDTO> saveCategory(String categoryLabel, MultipartFile imageUrl,
             String parentCategory) {
@@ -54,8 +50,11 @@ public class CategoryServiceImpl implements CategoryService {
             Category newCategory = new Category();
             String photoUrl = awsS3Service.saveImageToS3(imageUrl);
             // Mapping parent category string to object
-            // Category myCategory = null;
-            Category myCategory = objectMapper.readValue(parentCategory, Category.class);
+            Category myCategory = null;
+            // Category myCategory = objectMapper.readValue(parentCategory, Category.class);
+            if (parentCategory != null && !parentCategory.trim().isEmpty()) {
+                myCategory = objectMapper.readValue(parentCategory, Category.class);
+            }
 
             newCategory.setCategoryLabel(categoryLabel);
             newCategory.setImageUrl(photoUrl);

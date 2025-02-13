@@ -25,10 +25,10 @@ public class CartController {
     @Autowired
     private CartServiceImpl cartService;
 
-    @GetMapping("/calculate")
-    public double calculateTotal(@RequestBody Cart cart) {
-        return cartService.calculateFinalAmount(cart);
-    }
+    // @GetMapping("/calculate")
+    // public double calculateTotal(@RequestBody Cart cart) {
+    // return cartService.calculateFinalAmount(cart);
+    // }
 
     @PostMapping
     public ResponseEntity<Cart> createCart(@RequestBody Cart cart) {
