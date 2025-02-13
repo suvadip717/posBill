@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.servers.Server;
+// import io.swagger.v3.oas.models.servers.Server;
 
 @Configuration
 public class SwaggerConfig {
@@ -16,7 +16,8 @@ public class SwaggerConfig {
         return new OpenAPI()
                 .info(
                         new Info().title("PosBilling Application")
-                                .description("By Technix"))
-                .servers(Arrays.asList(new Server().url("192.168.0.164:8080").description("local")));
+                                .description("By Technix"));
+        // .servers(Arrays.asList(new
+        // Server().url("192.168.0.164:8080").description("local")));
     }
 }

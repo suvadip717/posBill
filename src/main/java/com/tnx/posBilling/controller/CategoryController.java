@@ -33,10 +33,6 @@ public class CategoryController {
     public ResponseEntity<CategoryDTO> getCategoryById(@PathVariable Long id) {
         return categoryService.getCategoryById(id);
     }
-    // @GetMapping("/{id}")
-    // public ResponseEntity<Category> getCategoryById(@PathVariable Long id) {
-    // return categoryService.getCategoryByIdTest(id);
-    // }
 
     // @PostMapping
     // public Category createCategory(@RequestBody Category category) {
