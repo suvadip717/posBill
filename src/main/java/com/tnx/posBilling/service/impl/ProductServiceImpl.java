@@ -1,6 +1,7 @@
 package com.tnx.posBilling.service.impl;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,7 +50,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ResponseEntity<ProductDTO> saveProduct(String productId, String productLabel, MultipartFile photo,
+    public ResponseEntity<ProductDTO> saveProduct(String productId, String productCode,
+            String barCode, String productLabel, MultipartFile photo,
             double unitPrice,
             double mrp,
             double discountAmount, double discountPercentage, String unit, String skuCode, double taxPercentage,
@@ -61,6 +63,8 @@ public class ProductServiceImpl implements ProductService {
             // Mapping string to object
             Category newCategory = objectMapper.readValue(category, Category.class);
             newProduct.setProductId(productId);
+            newProduct.setBarCode(barCode);
+            newProduct.setProductCode(productCode);
             newProduct.setImageUrl(imageUrl);
             newProduct.setProductLabel(productLabel);
             newProduct.setUnitPrice(unitPrice);
@@ -86,7 +90,10 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ResponseEntity<ProductDTO> updateProduct(String productId, String productLabel, MultipartFile photo,
+    public ResponseEntity<ProductDTO> updateProduct(String productId, String productCode,
+            String barCode,
+            String productLabel,
+            MultipartFile photo,
             double unitPrice,
             double mrp,
             double discountAmount, double discountPercentage, String unit, String skuCode, double taxPercentage,
@@ -99,6 +106,8 @@ public class ProductServiceImpl implements ProductService {
             // Mapping string to object
             Category newCategory = objectMapper.readValue(category, Category.class);
             existProduct.setProductId(productId);
+            existProduct.setBarCode(barCode);
+            existProduct.setProductCode(productCode);
             existProduct.setImageUrl(imageUrl);
             existProduct.setProductLabel(productLabel);
             existProduct.setUnitPrice(unitPrice);
@@ -128,4 +137,23 @@ public class ProductServiceImpl implements ProductService {
         productRepository.deleteById(id);
         return new ResponseEntity<>("Product deleted successfully", HttpStatus.OK);
     }
+
+    @Override
+    public ResponseEntity<List<ProductDTO>> findProductBar(String barcode) {
+        List<Product> getProduct = productRepository.findByBarCode(barcode);
+
+        if (getProduct == null || getProduct.isEmpty()) {
+            throw new ResourceNotFoundException("Barcode is not found");
+        }
+
+        List<ProductDTO> newList = new ArrayList<>();
+        for (Product prod : getProduct) {
+            ProductDTO newprod = Utils.mapProductdtoToProduct(prod);
+            newprod.setMessage("successful");
+            newprod.setStatusCode(200);
+            newList.add(newprod);
+        }
+        return new ResponseEntity<>(newList, HttpStatus.OK);
+    }
+
 }

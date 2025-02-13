@@ -12,6 +12,8 @@ public class ProductDTO {
     private int statusCode;
     private String message;
     private String productId;
+    private String productCode;
+    private String barCode;
     private String productLabel;
     private String imageUrl;
     private double unitPrice;

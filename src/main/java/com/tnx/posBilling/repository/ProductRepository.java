@@ -12,4 +12,5 @@ import com.tnx.posBilling.model.Product;
 public interface ProductRepository extends JpaRepository<Product, String> {
     List<Product> findByCategory(Category category);
 
+    List<Product> findByBarCode(String barCode);
 }

@@ -9,6 +9,8 @@ public class Utils {
     public static ProductDTO mapProductdtoToProduct(Product product) {
         ProductDTO productDTO = new ProductDTO();
         productDTO.setProductId(product.getProductId());
+        productDTO.setBarCode(product.getBarCode());
+        productDTO.setProductCode(product.getProductCode());
         productDTO.setProductLabel(product.getProductLabel());
         productDTO.setImageUrl(product.getImageUrl());
         productDTO.setUnitPrice(product.getUnitPrice());

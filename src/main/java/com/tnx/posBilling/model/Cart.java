@@ -21,6 +21,7 @@ public class Cart {
     private String id;
 
     private Double totalDiscount;
+    private double discountPercent;
     private double discountAmount;
     private double deliveryCharge;
     private double totalSGST;

@@ -60,6 +60,11 @@ public class CartServiceImpl implements CartService {
                 + cart.getDeliveryCharge() - cart.getDiscountAmount();
     }
 
+    public double discountAmountPercent(Cart cart) {
+        double totalAmount = calculateFinalAmount(cart) - cart.getDeliveryCharge();
+        return totalAmount * cart.getDiscountPercent() / 100;
+    }
+
     // create new cart
     @Transactional
     @Override
@@ -70,6 +75,10 @@ public class CartServiceImpl implements CartService {
                             "Product not found: " + item.getProduct().getProductId()));
             double discountAmount = product.getUnitPrice() * product.getDiscountPercentage() / 100;
             double totalDiscountAmount = discountAmount * item.getQuantity();
+            if (item.getDiscountPercentage() == 0) {
+                discountAmount = product.getDiscountAmount();
+                totalDiscountAmount = product.getDiscountAmount() * item.getQuantity();
+            }
             double taxAbleAmount = (product.getUnitPrice() - discountAmount) * item.getQuantity();
             double taxAmount = taxAbleAmount * (product.getTaxPercentage() / 100);
             double totalAmount = taxAbleAmount + taxAmount;
@@ -92,6 +101,9 @@ public class CartServiceImpl implements CartService {
         cart.setItems(updatedItems);
         cart.setTotalDiscount(calculateTotalDiscount(cart));
         cart.setTotalTax(calculateTotalTex(cart));
+        if (cart.getDiscountPercent() != 0) {
+            cart.setDiscountAmount(discountAmountPercent(cart));
+        }
         cart.setTotalCGST(calculateTotalCGST(cart));
         cart.setTotalSGST(calculateTotalSGST(cart));
         cart.setTotalIGST(calculateTotalIGST(cart));
@@ -147,6 +159,10 @@ public class CartServiceImpl implements CartService {
             double totalDiscountAmount = discountAmount * item.getQuantity();
             // double taxAbleAmount = (product.getUnitPrice() - discountAmount) *
             // item.getQuantity();
+            if (item.getDiscountPercentage() == 0) {
+                discountAmount = product.getDiscountAmount();
+                totalDiscountAmount = product.getDiscountAmount() * item.getQuantity();
+            }
             double taxAbleAmount = (item.getRate() - discountAmount) * item.getQuantity();
             double taxAmount = taxAbleAmount * (item.getTaxPercnt() / 100);
             double totalAmount = taxAbleAmount + taxAmount;
@@ -176,8 +192,14 @@ public class CartServiceImpl implements CartService {
         existingCart.setTotalCGST(calculateTotalCGST(existingCart));
         existingCart.setTotalSGST(calculateTotalSGST(existingCart));
         existingCart.setTotalIGST(calculateTotalIGST(existingCart));
+        existingCart.setDiscountPercent(updatedCart.getDiscountPercent());
         existingCart.setDeliveryCharge(updatedCart.getDeliveryCharge());
-        existingCart.setDiscountAmount(updatedCart.getDiscountAmount());
+        if (updatedCart.getDiscountPercent() != 0) {
+            existingCart.setDiscountAmount(discountAmountPercent(updatedCart));
+        } else {
+            existingCart.setDiscountAmount(updatedCart.getDiscountAmount());
+        }
+        // existingCart.setDiscountAmount(updatedCart.getDiscountAmount());
         existingCart.setTotalAmount(calculateFinalAmount(existingCart));
         existingCart.setUpdatedAt(LocalDateTime.now());
 
@@ -187,7 +209,7 @@ public class CartServiceImpl implements CartService {
     @Override
     @Transactional
     public ResponseEntity<Cart> addProductToCart(String cartId, String productId, int quantity, double rate,
-            double discountPercentage, double totalAmount, double taxPercnt) {
+            double discountPercentage, double discount, double totalAmount, double taxPercnt) {
         Cart cart = cartRepository.findById(cartId)
                 .orElseThrow(() -> new ResourceNotFoundException("Cart not found"));
 
@@ -212,6 +234,9 @@ public class CartServiceImpl implements CartService {
         // product.getDiscountPercentage() / 100;
         // double discountAmount = product.getUnitPrice() * discountPercentage / 100;
         double discountAmount = rate * discountPercentage / 100;
+        if (discountPercentage == 0) {
+            discountAmount = discount;
+        }
         cartItem.setDiscount(discountAmount);
         // cartItem.setDiscountPercentage(product.getDiscountPercentage());
         cartItem.setDiscountPercentage(discountPercentage);

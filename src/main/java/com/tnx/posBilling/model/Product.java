@@ -16,6 +16,8 @@ public class Product {
     @Id
     private String productId;
 
+    private String productCode;
+    private String barCode;
     private String productLabel;
     private String imageUrl;
     private double unitPrice;

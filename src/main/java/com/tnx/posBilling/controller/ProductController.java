@@ -13,6 +13,7 @@ import com.tnx.posBilling.service.impl.ProductServiceImpl;
 import java.util.List;
 
 @RestController
+@CrossOrigin
 @RequestMapping("/products")
 public class ProductController {
     @Autowired
@@ -31,6 +32,8 @@ public class ProductController {
     @PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
     public ResponseEntity<ProductDTO> createProduct(
             @RequestParam String productId,
+            @RequestParam String productCode,
+            @RequestParam String barCode,
             @RequestParam String productLabel,
             @RequestParam MultipartFile photo,
             @RequestParam double unitPrice,
@@ -42,7 +45,7 @@ public class ProductController {
             @RequestParam double taxPercentage,
             @RequestParam Integer stockQuantity,
             @RequestParam String category) {
-        return productService.saveProduct(productId, productLabel, photo,
+        return productService.saveProduct(productId, productCode, barCode, productLabel, photo,
                 unitPrice, mrp, discountAmount,
                 discountPercentage, unit,
                 skuCode, taxPercentage, stockQuantity, category);
@@ -61,6 +64,8 @@ public class ProductController {
     @PutMapping("/{id}")
     public ResponseEntity<ProductDTO> updateProduct(
             @PathVariable String id,
+            @RequestParam String productCode,
+            @RequestParam String barCode,
             @RequestParam String productLabel,
             @RequestParam MultipartFile photo,
             @RequestParam double unitPrice,
@@ -72,9 +77,15 @@ public class ProductController {
             @RequestParam double taxPercentage,
             @RequestParam Integer stockQuantity,
             @RequestParam String category) {
-        return productService.updateProduct(id, productLabel, photo,
+        return productService.updateProduct(id, productCode,
+                barCode, productLabel, photo,
                 unitPrice, mrp, discountAmount,
                 discountPercentage, unit,
                 skuCode, taxPercentage, stockQuantity, category);
+    }
+
+    @GetMapping("barcode/{barCode}")
+    public ResponseEntity<List<ProductDTO>> findByBar(@PathVariable String barCode) {
+        return productService.findProductBar(barCode);
     }
 }

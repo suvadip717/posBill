@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,6 +20,7 @@ import com.tnx.posBilling.service.impl.CartServiceImpl;
 
 @RestController
 @RequestMapping("/cart")
+@CrossOrigin
 public class CartController {
     @Autowired
     private CartServiceImpl cartService;
@@ -60,11 +62,12 @@ public class CartController {
             @RequestParam int quantity,
             @RequestParam double rate,
             @RequestParam double discountPercentage,
+            @RequestParam double discount,
             @RequestParam double totalAmount,
             @RequestParam double taxPercnt) {
 
         return cartService.addProductToCart(cartId, productId, quantity, rate,
-                discountPercentage, totalAmount, taxPercnt);
+                discountPercentage, discount, totalAmount, taxPercnt);
         // return cartService.addProductToCart(cartId, productId, quantity);
     }
 
