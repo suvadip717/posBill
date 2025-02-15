@@ -34,5 +34,5 @@ public interface ProductService {
                         double taxPercentage,
                         Integer stockQuantity, String category);
 
-        public ResponseEntity<List<ProductDTO>> findProductBar(String barcode);
+        public ResponseEntity<List<ProductDTO>> findProductFind(String searchTerm);
 }

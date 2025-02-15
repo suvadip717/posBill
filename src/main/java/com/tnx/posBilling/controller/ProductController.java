@@ -84,8 +84,8 @@ public class ProductController {
                 skuCode, taxPercentage, stockQuantity, category);
     }
 
-    @GetMapping("barcode/{barCode}")
-    public ResponseEntity<List<ProductDTO>> findByBar(@PathVariable String barCode) {
-        return productService.findProductBar(barCode);
+    @GetMapping("/search")
+    public ResponseEntity<List<ProductDTO>> getProductByLabelOrBarcode(@RequestParam String search) {
+        return productService.findProductFind(search);
     }
 }

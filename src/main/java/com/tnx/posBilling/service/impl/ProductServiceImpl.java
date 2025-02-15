@@ -139,8 +139,10 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ResponseEntity<List<ProductDTO>> findProductBar(String barcode) {
-        List<Product> getProduct = productRepository.findByBarCode(barcode);
+    public ResponseEntity<List<ProductDTO>> findProductFind(String searchTerm) {
+        List<Product> getProduct = productRepository.findByProductLabelOrBarCodeOrProductCode(searchTerm,
+                searchTerm,
+                searchTerm);
 
         if (getProduct == null || getProduct.isEmpty()) {
             throw new ResourceNotFoundException("Barcode is not found");
@@ -155,5 +157,4 @@ public class ProductServiceImpl implements ProductService {
         }
         return new ResponseEntity<>(newList, HttpStatus.OK);
     }
-
 }

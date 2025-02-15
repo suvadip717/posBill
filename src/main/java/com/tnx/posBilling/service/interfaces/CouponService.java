@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 
 import com.tnx.posBilling.model.Coupon;
+import com.tnx.posBilling.model.RedeemCouponRequest;
 
 public interface CouponService {
     public ResponseEntity<List<Coupon>> getAllCoupons();
@@ -17,5 +18,7 @@ public interface CouponService {
 
     public ResponseEntity<String> deleteCoupon(int id);
 
-    public ResponseEntity<List<Coupon>> findByCouponCode(String couponcode);
+    public ResponseEntity<Coupon> findByCouponCode(String couponcode);
+
+    public ResponseEntity<Double> redeemCoupon(RedeemCouponRequest request);
 }

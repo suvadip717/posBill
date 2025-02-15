@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tnx.posBilling.model.Coupon;
+import com.tnx.posBilling.model.RedeemCouponRequest;
 import com.tnx.posBilling.service.impl.CouponServiceImpl;
 
 @RestController
@@ -50,7 +51,12 @@ public class CouponController {
     }
 
     @GetMapping("/coupon-code/{code}")
-    public ResponseEntity<List<Coupon>> findByCouponCode(@PathVariable String code) {
+    public ResponseEntity<Coupon> findByCouponCode(@PathVariable String code) {
         return couponService.findByCouponCode(code);
+    }
+
+    @PostMapping("/redeem-coupon")
+    public ResponseEntity<Double> redeemCouponCode(@RequestBody RedeemCouponRequest request) {
+        return couponService.redeemCoupon(request);
     }
 }
