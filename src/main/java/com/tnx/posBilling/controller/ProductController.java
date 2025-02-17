@@ -85,7 +85,7 @@ public class ProductController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<ProductDTO>> getProductByLabelOrBarcode(@RequestParam String search) {
-        return productService.findProductFind(search);
+    public ResponseEntity<List<Product>> getProduct(@RequestParam String search) {
+        return productService.getSearchProducts(search);
     }
 }

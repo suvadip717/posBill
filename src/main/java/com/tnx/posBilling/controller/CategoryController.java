@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.tnx.posBilling.dto.CategoryDTO;
+import com.tnx.posBilling.dto.CategoryRootDTO;
 import com.tnx.posBilling.model.Category;
 import com.tnx.posBilling.service.impl.CategoryServiceImpl;
 
@@ -24,8 +25,13 @@ public class CategoryController {
         return categoryService.getAllCategories();
     }
 
+    // @GetMapping("/roots")
+    // public ResponseEntity<List<Category>> getRootCategories() {
+    // return categoryService.getRootCategories();
+    // }
+
     @GetMapping("/roots")
-    public ResponseEntity<List<Category>> getRootCategories() {
+    public ResponseEntity<List<CategoryRootDTO>> getRootCategories() {
         return categoryService.getRootCategories();
     }
 

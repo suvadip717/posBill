@@ -2,6 +2,7 @@ package com.tnx.posBilling.service.impl;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tnx.posBilling.dto.CategoryDTO;
+import com.tnx.posBilling.dto.CategoryRootDTO;
 import com.tnx.posBilling.exceptions.ResourceNotFoundException;
 import com.tnx.posBilling.model.Category;
 import com.tnx.posBilling.repository.CategoryRepository;
@@ -109,8 +111,19 @@ public class CategoryServiceImpl implements CategoryService {
         return new ResponseEntity<>(categoryRepository.findAll(), HttpStatus.OK);
     }
 
+    // @Override
+    // public ResponseEntity<List<Category>> getRootCategories() {
+    // return new ResponseEntity<>(categoryRepository.findByParentCategoryIsNull(),
+    // HttpStatus.OK);
+    // }
+
     @Override
-    public ResponseEntity<List<Category>> getRootCategories() {
-        return new ResponseEntity<>(categoryRepository.findByParentCategoryIsNull(), HttpStatus.OK);
+    public ResponseEntity<List<CategoryRootDTO>> getRootCategories() {
+        List<Category> rootCategories = categoryRepository.findByParentCategoryIsNull();
+        List<CategoryRootDTO> rootCategoryDTOs = rootCategories.stream()
+                .map(CategoryRootDTO::fromEntity)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(rootCategoryDTOs);
     }
 }

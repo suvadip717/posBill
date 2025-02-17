@@ -1,7 +1,6 @@
 package com.tnx.posBilling.service.impl;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -139,22 +138,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ResponseEntity<List<ProductDTO>> findProductFind(String searchTerm) {
-        List<Product> getProduct = productRepository.findByProductLabelOrBarCodeOrProductCode(searchTerm,
-                searchTerm,
-                searchTerm);
-
-        if (getProduct == null || getProduct.isEmpty()) {
-            throw new ResourceNotFoundException("Barcode is not found");
-        }
-
-        List<ProductDTO> newList = new ArrayList<>();
-        for (Product prod : getProduct) {
-            ProductDTO newprod = Utils.mapProductdtoToProduct(prod);
-            newprod.setMessage("successful");
-            newprod.setStatusCode(200);
-            newList.add(newprod);
-        }
-        return new ResponseEntity<>(newList, HttpStatus.OK);
+    public ResponseEntity<List<Product>> getSearchProducts(String keyword) {
+        return new ResponseEntity<>(productRepository.searchSimilarProducts(keyword), HttpStatus.OK);
     }
 }
