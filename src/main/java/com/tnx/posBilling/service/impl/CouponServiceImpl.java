@@ -1,9 +1,9 @@
 package com.tnx.posBilling.service.impl;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,13 +13,23 @@ import org.springframework.stereotype.Service;
 import com.tnx.posBilling.exceptions.ResourceNotFoundException;
 import com.tnx.posBilling.model.Coupon;
 import com.tnx.posBilling.model.RedeemCouponRequest;
+import com.tnx.posBilling.model.RedeemedCoupon;
+import com.tnx.posBilling.model.User;
 import com.tnx.posBilling.repository.CouponRepository;
+import com.tnx.posBilling.repository.RedeemedCouponRepository;
+import com.tnx.posBilling.repository.UserRepository;
 import com.tnx.posBilling.service.interfaces.CouponService;
 
 @Service
 public class CouponServiceImpl implements CouponService {
     @Autowired
     private CouponRepository couponRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private RedeemedCouponRepository redeemedCouponRepository;
 
     @Override
     public ResponseEntity<List<Coupon>> getAllCoupons() {
@@ -75,55 +85,86 @@ public class CouponServiceImpl implements CouponService {
     }
 
     @Override
-    public ResponseEntity<Double> redeemCoupon(RedeemCouponRequest request) {
-        Optional<Coupon> optionalCoupon = couponRepository.findByCouponCode(request.getCouponCode());
+    public ResponseEntity<?> redeemCoupon(RedeemCouponRequest request) {
+        // Fetch the coupon
+        Coupon coupon = couponRepository.findByCouponCode(request.getCouponCode())
+                .orElseThrow(() -> new ResourceNotFoundException("Invalid coupon code"));
 
-        if (optionalCoupon.isEmpty()) {
-            throw new ResourceNotFoundException("Invalid coupon code.");
+        // Validate if the coupon is still active
+        LocalDateTime now = LocalDateTime.now();
+        if (coupon.getStartDate().isAfter(now) || (coupon.getEndDate() != null && coupon.getEndDate().isBefore(now))) {
+            return ResponseEntity.badRequest().body("Coupon is expired or not yet active.");
         }
 
-        Coupon coupon = optionalCoupon.get();
-
-        // Check if the coupon has expired
-        if (coupon.getEndDate() != null && LocalDateTime.now().isAfter(coupon.getEndDate())) {
-            throw new ResourceNotFoundException("Coupon has expired.");
+        // Check if maximum usage count is exceeded
+        if (coupon.getMaximumUseCount() != null && coupon.getUsedCount() >= coupon.getMaximumUseCount()) {
+            return ResponseEntity.badRequest().body("Coupon usage limit exceeded.");
         }
 
-        // Check if usage limit is reached
-        int usedCount = Optional.ofNullable(coupon.getUsedCount()).orElse(0);
-        if (coupon.getMaximumUseCount() != null && usedCount >= coupon.getMaximumUseCount()) {
-            throw new ResourceNotFoundException("Coupon usage limit reached.");
-        }
-
-        // Check if order meets the minimum value
+        // Check minimum order value if required
         if (coupon.isMinimumRequirement() && request.getOrderValue() < coupon.getMinimumOrderValue()) {
-            throw new ResourceNotFoundException("Order value must be at least " + coupon.getMinimumOrderValue());
+            return ResponseEntity.badRequest().body("Order value is less than the required minimum.");
         }
 
-        // Check if the coupon applies to the customer
-        if (coupon.getCustomerType() == Coupon.CustomerType.SEGMENT
-                && !"VIP".equalsIgnoreCase(coupon.getSegmentName())) {
-            throw new ResourceNotFoundException("Coupon is not valid for this customer segment.");
+        // Validate customer eligibility
+        if (!isCustomerEligible(request.getCustomerId(), coupon)) {
+            return ResponseEntity.badRequest().body("Customer is not eligible for this coupon.");
         }
+        User customer = userRepository.findById(request.getCustomerId())
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        if (coupon.getCustomerType() == Coupon.CustomerType.INDIVIDUAL &&
-                !Objects.equals(request.getCustomerId(), coupon.getCustomerId())) {
-            throw new ResourceNotFoundException("Coupon is not valid for this customer.");
-        }
+        // Check if the customer has already redeemed this coupon before
+        RedeemedCoupon redeemedCoupon = new RedeemedCoupon();
 
-        // Apply the discount
-        double discount = coupon.getDiscountInAmount();
-        if (coupon.getDiscountInPercent() > 0) {
-            discount = (request.getOrderValue() * coupon.getDiscountInPercent()) / 100;
-        }
+        // Update redeem count
+        // if (redeemedCoupon.getId() != null) {
+        // redeemedCoupon.setRedeemCount(redeemedCoupon.getRedeemCount() + 1);
+        // } else {
+        redeemedCoupon.setCoupon(coupon);
+        redeemedCoupon.setCustomer(customer);
+        redeemedCoupon.setOrderValue(request.getOrderValue());
+        redeemedCoupon.setDiscountApplied(calculateDiscount(request.getOrderValue(), coupon));
+        redeemedCoupon.setRedeemCount(1);
+        // }
 
-        // Ensure discount is non-negative
-        discount = Math.max(0, discount);
+        // Save redemption record
+        redeemedCouponRepository.save(redeemedCoupon);
 
-        // Update the coupon usage count safely
-        coupon.setUsedCount(usedCount + 1);
+        // Increment coupon usage count and update
+        coupon.setUsedCount(coupon.getUsedCount() + 1);
         couponRepository.save(coupon);
 
-        return new ResponseEntity<>(discount, HttpStatus.OK);
+        // Return discount amount
+        Map<String, Object> response = new HashMap<>();
+        response.put("CouponCode", coupon.getCouponCode());
+        response.put("Description", coupon.getDescription());
+        response.put("Discount Percent", coupon.getDiscountInPercent());
+        response.put("Discount Amount", redeemedCoupon.getDiscountApplied());
+        response.put("Final Amount", redeemedCoupon.getOrderValue() - redeemedCoupon.getDiscountApplied());
+        return ResponseEntity.ok(response);
+    }
+
+    private boolean isCustomerEligible(int customerId, Coupon coupon) {
+        switch (coupon.getCustomerType()) {
+            case ALL:
+                return true;
+            case SEGMENT:
+                User user = userRepository.findById(customerId)
+                        .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                return user.getCustomerGroup() != null &&
+                        user.getCustomerGroup().getGroupName().equalsIgnoreCase(coupon.getSegmentName());
+            case INDIVIDUAL:
+                return coupon.getCustomerId() != null && coupon.getCustomerId().equals(customerId);
+            default:
+                return false;
+        }
+    }
+
+    private double calculateDiscount(double orderValue, Coupon coupon) {
+        if (coupon.getDiscountInPercent() > 0) {
+            return (orderValue * coupon.getDiscountInPercent()) / 100;
+        } else {
+            return Math.min(orderValue, coupon.getDiscountInAmount());
+        }
     }
 }

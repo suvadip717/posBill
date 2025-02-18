@@ -56,7 +56,7 @@ public class CouponController {
     }
 
     @PostMapping("/redeem-coupon")
-    public ResponseEntity<Double> redeemCouponCode(@RequestBody RedeemCouponRequest request) {
+    public ResponseEntity<?> redeemCouponCode(@RequestBody RedeemCouponRequest request) {
         return couponService.redeemCoupon(request);
     }
 }

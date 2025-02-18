@@ -20,5 +20,5 @@ public interface CouponService {
 
     public ResponseEntity<Coupon> findByCouponCode(String couponcode);
 
-    public ResponseEntity<Double> redeemCoupon(RedeemCouponRequest request);
+    public ResponseEntity<?> redeemCoupon(RedeemCouponRequest request);
 }

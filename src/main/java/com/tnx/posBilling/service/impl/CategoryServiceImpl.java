@@ -121,7 +121,7 @@ public class CategoryServiceImpl implements CategoryService {
     public ResponseEntity<List<CategoryRootDTO>> getRootCategories() {
         List<Category> rootCategories = categoryRepository.findByParentCategoryIsNull();
         List<CategoryRootDTO> rootCategoryDTOs = rootCategories.stream()
-                .map(CategoryRootDTO::fromEntity)
+                .map(Utils::mapCategoryRootDtoToCategory)
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(rootCategoryDTOs);

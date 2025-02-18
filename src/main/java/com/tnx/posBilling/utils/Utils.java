@@ -1,6 +1,9 @@
 package com.tnx.posBilling.utils;
 
+import java.util.Collections;
+
 import com.tnx.posBilling.dto.CategoryDTO;
+import com.tnx.posBilling.dto.CategoryRootDTO;
 import com.tnx.posBilling.dto.ProductDTO;
 import com.tnx.posBilling.model.Category;
 import com.tnx.posBilling.model.Product;
@@ -35,6 +38,19 @@ public class Utils {
         categoryDTO.setProducts(category.getProducts());
         categoryDTO.setSubCategories(category.getSubCategories());
         categoryDTO.setParentCategory(category.getParentCategory());
+        categoryDTO.setCreatedAt(category.getCreatedAt());
+        categoryDTO.setUpdatedAt(category.getUpdatedAt());
+        return categoryDTO;
+    }
+
+    public static CategoryRootDTO mapCategoryRootDtoToCategory(Category category) {
+        CategoryRootDTO categoryDTO = new CategoryRootDTO();
+        categoryDTO.setCategoryId(category.getCategoryId());
+        categoryDTO.setImageUrl(category.getImageUrl());
+        categoryDTO.setCategoryLabel(category.getCategoryLabel());
+        // categoryDTO.setProducts(category.getProducts());
+        categoryDTO.setSubCategories(Collections.emptyList());
+        // categoryDTO.setParentCategory(category.getParentCategory());
         categoryDTO.setCreatedAt(category.getCreatedAt());
         categoryDTO.setUpdatedAt(category.getUpdatedAt());
         return categoryDTO;

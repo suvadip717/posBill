@@ -37,6 +37,9 @@ public class UserServiceImpl implements UserService {
     public ResponseEntity<User> updateUser(int id, User userDetails) {
         return userRepository.findById(id).map(user -> {
             user.setUserName(userDetails.getUserName());
+            user.setCustomerGroup(userDetails.getCustomerGroup());
+            user.setFullName(userDetails.getFullName());
+            user.setPassword(userDetails.getPassword());
             return new ResponseEntity<>(userRepository.save(user), HttpStatus.OK);
         }).orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
     }
