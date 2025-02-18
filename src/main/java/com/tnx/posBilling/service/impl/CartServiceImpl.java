@@ -55,6 +55,10 @@ public class CartServiceImpl implements CartService {
         return cart.getItems().stream().mapToDouble(CartItem::getIGST).sum();
     }
 
+    public double calculateTotalTexableAmount(Cart cart) {
+        return cart.getItems().stream().mapToDouble(CartItem::getTaxableValue).sum();
+    }
+
     public double calculateFinalAmount(Cart cart) {
         return cart.getItems().stream().mapToDouble(CartItem::getTotalAmount).sum()
                 + cart.getDeliveryCharge() - cart.getDiscountAmount();
@@ -110,6 +114,7 @@ public class CartServiceImpl implements CartService {
         cart.setDiscountAmount(cart.getDiscountAmount());
         cart.setDeliveryCharge(cart.getDeliveryCharge());
         cart.setTotalAmount(calculateFinalAmount(cart));
+        cart.setTotalTaxableValue(calculateTotalTexableAmount(cart));
         cart.setCreatedAt(LocalDateTime.now());
 
         return new ResponseEntity<>(cartRepository.save(cart), HttpStatus.CREATED);

@@ -12,4 +12,6 @@ import com.tnx.posBilling.model.User;
 @Repository
 public interface RedeemedCouponRepository extends JpaRepository<RedeemedCoupon, Long> {
     Optional<RedeemedCoupon> findByCouponAndCustomer(Coupon coupon, User customer);
+
+    boolean existsByCustomerAndCoupon(User customer, Coupon coupon);
 }

@@ -59,4 +59,9 @@ public class CouponController {
     public ResponseEntity<?> redeemCouponCode(@RequestBody RedeemCouponRequest request) {
         return couponService.redeemCoupon(request);
     }
+
+    @PostMapping("/check-coupon")
+    public ResponseEntity<?> checkCouponCode(@RequestBody RedeemCouponRequest request) {
+        return couponService.checkCoupon(request);
+    }
 }

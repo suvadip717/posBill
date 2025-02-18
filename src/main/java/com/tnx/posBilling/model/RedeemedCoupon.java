@@ -28,8 +28,8 @@ public class RedeemedCoupon {
     private User customer;
 
     private double orderValue;
-    private double discountApplied;
-    private int redeemCount;
+    // private double discountApplied;
+    // private int redeemCount;
 
     @CreationTimestamp
     private LocalDateTime redeemedAt;
