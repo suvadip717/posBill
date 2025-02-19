@@ -1,7 +1,10 @@
 package com.tnx.posBilling.service.impl;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -17,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import com.tnx.posBilling.exceptions.ResourceNotFoundException;
 import com.tnx.posBilling.model.CartItem;
 import com.tnx.posBilling.model.Product;
+import com.tnx.posBilling.model.TaxDetail;
 import com.tnx.posBilling.repository.CartItemRepository;
 import com.tnx.posBilling.repository.CartRepository;
 import com.tnx.posBilling.repository.ProductRepository;
@@ -69,6 +73,35 @@ public class CartServiceImpl implements CartService {
         return totalAmount * cart.getDiscountPercent() / 100;
     }
 
+    public Cart calculateCartTotals(Cart cart) {
+        Map<String, TaxDetail> taxAggregation = new HashMap<>();
+
+        for (CartItem item : cart.getItems()) {
+            double taxableValue = item.getTaxableValue(); // Get taxable value of the item
+
+            // Handle CGST
+            if (item.getCGST() > 0) {
+                String cgstKey = "CGST_" + (item.getCGST() / taxableValue * 100);
+                taxAggregation.putIfAbsent(cgstKey, new TaxDetail("CGST", item.getCGST() / taxableValue * 100, 0, 0));
+                taxAggregation.get(cgstKey)
+                        .setTaxableValue(taxAggregation.get(cgstKey).getTaxableValue() + taxableValue);
+                taxAggregation.get(cgstKey).setTaxAmount(taxAggregation.get(cgstKey).getTaxAmount() + item.getCGST());
+            }
+
+            // Handle SGST
+            if (item.getSGST() > 0) {
+                String sgstKey = "SGST_" + (item.getSGST() / taxableValue * 100);
+                taxAggregation.putIfAbsent(sgstKey, new TaxDetail("SGST", item.getSGST() / taxableValue * 100, 0, 0));
+                taxAggregation.get(sgstKey)
+                        .setTaxableValue(taxAggregation.get(sgstKey).getTaxableValue() + taxableValue);
+                taxAggregation.get(sgstKey).setTaxAmount(taxAggregation.get(sgstKey).getTaxAmount() + item.getSGST());
+            }
+        }
+        // Convert map values into a list and set in cart
+        cart.setTaxDetails(new ArrayList<>(taxAggregation.values()));
+        return cart;
+    }
+
     // create new cart
     @Transactional
     @Override
@@ -77,14 +110,20 @@ public class CartServiceImpl implements CartService {
             Product product = productRepository.findById(item.getProduct().getProductId())
                     .orElseThrow(() -> new ResourceNotFoundException(
                             "Product not found: " + item.getProduct().getProductId()));
-            double discountAmount = product.getUnitPrice() * product.getDiscountPercentage() / 100;
+
+            double discountAmount = product.getUnitPrice() *
+                    product.getDiscountPercentage() / 100;
             double totalDiscountAmount = discountAmount * item.getQuantity();
             if (item.getDiscountPercentage() == 0) {
                 discountAmount = product.getDiscountAmount();
                 totalDiscountAmount = product.getDiscountAmount() * item.getQuantity();
             }
-            double taxAbleAmount = (product.getUnitPrice() - discountAmount) * item.getQuantity();
+            double taxAbleAmount = (product.getUnitPrice() - discountAmount) *
+                    item.getQuantity();
             double taxAmount = taxAbleAmount * (product.getTaxPercentage() / 100);
+            double cgst = taxAmount / 2;
+            double sgst = taxAmount / 2;
+            double igst = 0.0;
             double totalAmount = taxAbleAmount + taxAmount;
 
             item.setProduct(product);
@@ -95,9 +134,9 @@ public class CartServiceImpl implements CartService {
             item.setTaxableValue(taxAbleAmount);
             item.setTaxPercnt(product.getTaxPercentage());
             item.setTaxAmount(taxAmount);
-            item.setCGST(taxAmount / 2);
-            item.setSGST(taxAmount / 2);
-            item.setIGST(0.0);
+            item.setCGST(cgst);
+            item.setSGST(sgst);
+            item.setIGST(igst);
             item.setTotalAmount(totalAmount);
             return item;
         }).collect(Collectors.toList());
@@ -111,20 +150,21 @@ public class CartServiceImpl implements CartService {
         cart.setTotalCGST(calculateTotalCGST(cart));
         cart.setTotalSGST(calculateTotalSGST(cart));
         cart.setTotalIGST(calculateTotalIGST(cart));
-        cart.setDiscountAmount(cart.getDiscountAmount());
-        cart.setDeliveryCharge(cart.getDeliveryCharge());
-        cart.setTotalAmount(calculateFinalAmount(cart));
         cart.setTotalTaxableValue(calculateTotalTexableAmount(cart));
+        cart.setTotalAmount(calculateFinalAmount(cart));
         cart.setCreatedAt(LocalDateTime.now());
+        Cart newCart = calculateCartTotals(cart);
 
-        return new ResponseEntity<>(cartRepository.save(cart), HttpStatus.CREATED);
+        return new ResponseEntity<>(cartRepository.save(newCart),
+                HttpStatus.CREATED);
     }
 
     @Override
     public ResponseEntity<Cart> getCartById(String cartId) {
         Cart cart = cartRepository.findById(cartId).orElse(null);
         if (cart != null) {
-            return new ResponseEntity<>(cart, HttpStatus.OK);
+            Cart newCart = calculateCartTotals(cart);
+            return new ResponseEntity<>(newCart, HttpStatus.OK);
         }
         throw new ResourceNotFoundException("Cart id is not found");
     }
@@ -141,7 +181,10 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public ResponseEntity<List<Cart>> allCart() {
-        return new ResponseEntity<>(cartRepository.findAll(), HttpStatus.OK);
+        List<Cart> cartList = cartRepository.findAll().stream()
+                .map(this::calculateCartTotals)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(cartList);
     }
 
     @Transactional
@@ -208,7 +251,9 @@ public class CartServiceImpl implements CartService {
         existingCart.setTotalAmount(calculateFinalAmount(existingCart));
         existingCart.setUpdatedAt(LocalDateTime.now());
 
-        return new ResponseEntity<>(cartRepository.save(existingCart), HttpStatus.OK);
+        Cart newCart = calculateCartTotals(existingCart);
+
+        return new ResponseEntity<>(cartRepository.save(newCart), HttpStatus.OK);
     }
 
     @Override
@@ -252,7 +297,8 @@ public class CartServiceImpl implements CartService {
         // double taxAmount = taxAbleAmount * (product.getTaxPercentage() / 100);
         double taxAmount = taxAbleAmount * (taxPercnt / 100);
         cartItem.setTaxableValue(taxAbleAmount);
-        cartItem.setTaxPercnt(product.getTaxPercentage());
+        // cartItem.setTaxPercnt(product.getTaxPercentage());
+        cartItem.setTaxPercnt(taxPercnt);
         cartItem.setTaxAmount(taxAmount);
         cartItem.setCGST(taxAmount / 2);
         cartItem.setSGST(taxAmount / 2);
@@ -264,16 +310,25 @@ public class CartServiceImpl implements CartService {
         cart.setTotalCGST(calculateTotalCGST(cart));
         cart.setTotalSGST(calculateTotalSGST(cart));
         cart.setTotalIGST(calculateTotalIGST(cart));
-        cart.setDiscountAmount(cart.getDiscountAmount());
+        if (cart.getDiscountPercent() != 0) {
+            cart.setDiscountAmount(
+                    (calculateTotalTex(cart) + calculateTotalTexableAmount(cart)) * cart.getDiscountPercent() / 100);
+        } else {
+            cart.setDiscountAmount(cart.getDiscountAmount());
+        }
+        // cart.setDiscountAmount(cart.getDiscountAmount());
         cart.setDeliveryCharge(cart.getDeliveryCharge());
+        cart.setTotalTaxableValue(calculateTotalTexableAmount(cart));
         cart.setTotalAmount(calculateFinalAmount(cart));
         cart.setUpdatedAt(LocalDateTime.now());
-        return new ResponseEntity<>(cartRepository.save(cart), HttpStatus.OK);
+        Cart newCart = calculateCartTotals(cart);
+
+        return new ResponseEntity<>(cartRepository.save(newCart), HttpStatus.OK);
     }
 
     @Transactional
     @Override
-    public Cart removeProductFromCart(String cartId, String productId) {
+    public ResponseEntity<Cart> removeProductFromCart(String cartId, String productId) {
         Cart cart = cartRepository.findById(cartId)
                 .orElseThrow(() -> new ResourceNotFoundException("Cart not found"));
 
@@ -285,15 +340,23 @@ public class CartServiceImpl implements CartService {
         cart.getItems().remove(cartItem);
         cartItemRepository.delete(cartItem);
 
-        cart.setTotalDiscount(cart.getItems().stream().mapToDouble(CartItem::getTotalDiscount).sum());
+        cart.setTotalDiscount(calculateTotalDiscount(cart));
+        if (cart.getDiscountPercent() != 0) {
+            cart.setDiscountAmount(
+                    (calculateTotalTex(cart) + calculateTotalTexableAmount(cart)) * cart.getDiscountPercent() / 100);
+        } else {
+            cart.setDiscountAmount(cart.getDiscountAmount());
+        }
         cart.setTotalTax(calculateTotalTex(cart));
         cart.setTotalCGST(calculateTotalCGST(cart));
         cart.setTotalSGST(calculateTotalSGST(cart));
         cart.setTotalIGST(calculateTotalIGST(cart));
         cart.setTotalAmount(calculateFinalAmount(cart));
+        cart.setTotalTaxableValue(calculateTotalTexableAmount(cart));
         cart.setUpdatedAt(LocalDateTime.now());
+        Cart newCart = calculateCartTotals(cart);
 
-        return cartRepository.save(cart);
+        return new ResponseEntity<>(cartRepository.save(newCart), HttpStatus.OK);
     }
 
     @Transactional
@@ -328,13 +391,21 @@ public class CartServiceImpl implements CartService {
         }
 
         cart.setTotalDiscount(calculateTotalDiscount(cart));
+        if (cart.getDiscountPercent() != 0) {
+            cart.setDiscountAmount(
+                    (calculateTotalTex(cart) + calculateTotalTexableAmount(cart)) * cart.getDiscountPercent() / 100);
+        } else {
+            cart.setDiscountAmount(cart.getDiscountAmount());
+        }
         cart.setTotalTax(calculateTotalTex(cart));
         cart.setTotalAmount(calculateFinalAmount(cart));
         cart.setTotalCGST(calculateTotalCGST(cart));
         cart.setTotalSGST(calculateTotalSGST(cart));
         cart.setTotalIGST(calculateTotalIGST(cart));
+        cart.setTotalTaxableValue(calculateTotalTexableAmount(cart));
         cart.setUpdatedAt(LocalDateTime.now());
+        Cart newCart = calculateCartTotals(cart);
 
-        return new ResponseEntity<>(cartRepository.save(cart), HttpStatus.OK);
+        return new ResponseEntity<>(cartRepository.save(newCart), HttpStatus.OK);
     }
 }

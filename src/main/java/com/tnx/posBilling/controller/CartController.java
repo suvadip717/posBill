@@ -76,8 +76,9 @@ public class CartController {
             @PathVariable String cartId,
             @RequestParam String productId) {
 
-        Cart updatedCart = cartService.removeProductFromCart(cartId, productId);
-        return ResponseEntity.ok(updatedCart);
+        // Cart updatedCart = cartService.removeProductFromCart(cartId, productId);
+        // return ResponseEntity.ok(updatedCart);
+        return cartService.removeProductFromCart(cartId, productId);
     }
 
     @PutMapping("/update-product/{cartId}")

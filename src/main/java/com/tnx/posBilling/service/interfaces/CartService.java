@@ -20,7 +20,8 @@ public interface CartService {
     public ResponseEntity<Cart> addProductToCart(String cartId, String productId, int quantity, double rate,
             double discountPercentage, double discount, double totalAmount, double taxPercnt);
 
-    public Cart removeProductFromCart(String cartId, String productId);
+    // public Cart removeProductFromCart(String cartId, String productId);
+    public ResponseEntity<Cart> removeProductFromCart(String cartId, String productId);
 
     public ResponseEntity<Cart> updateProductQuantityInCart(String cartId, String productId, int quantity);
 }
