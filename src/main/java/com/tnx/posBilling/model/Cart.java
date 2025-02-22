@@ -39,4 +39,9 @@ public class Cart {
     private List<CartItem> items;
     @Transient
     private List<TaxDetail> taxDetails;
+
+    // @ManyToOne
+    // @JoinColumn(name = "user_id", nullable = false)
+    // @JsonBackReference // Avoid infinite recursion when serializing
+    // private User user;
 }

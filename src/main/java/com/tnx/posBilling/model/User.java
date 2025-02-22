@@ -31,4 +31,9 @@ public class User {
     @JsonBackReference
     @JoinColumn(name = "customer_group_id", nullable = false)
     private CustomerGroup customerGroup;
+
+    // @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval =
+    // true)
+    // @JsonManagedReference
+    // private List<Cart> carts;
 }
