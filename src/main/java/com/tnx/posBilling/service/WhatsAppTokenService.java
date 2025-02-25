@@ -31,8 +31,6 @@ public class WhatsAppTokenService {
     @Scheduled(cron = "0 * * * */2 ?")
     public void refreshAccessToken() {
 
-        // https://graph.facebook.com/v22.0/oauth/access_token?grant_type=fb_exchange_token&client_id=1715159599062970&client_secret=33b105e854945d3cae4b6d7e3907158c&fb_exchange_token=EAAYX7bain7oBOZB1h25cxaHJSh8qWsJSVcjvdAxcfIfsOzviMXWwUGgPDnYM3rlwJmjLshdI5mseviK5Evodd7sVokuxQ5fwHtKM6msXkXvzNWTHA3ZAGLfOCzO9V743LMGGRE2NKzY617wMOcd2tfrosmURZAZCzRcm8xwAEViIKUGJXyL9Ax3k
-
         Token existToken = tokenRepository.findById(1).get();
         try {
             String url = "https://graph.facebook.com/v22.0/oauth/access_token?" +

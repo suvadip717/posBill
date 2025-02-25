@@ -248,6 +248,7 @@ public class CartServiceImpl implements CartService {
             existingCart.setDiscountAmount(updatedCart.getDiscountAmount());
         }
         // existingCart.setDiscountAmount(updatedCart.getDiscountAmount());
+        existingCart.setTotalTaxableValue(calculateTotalTexableAmount(existingCart));
         existingCart.setTotalAmount(calculateFinalAmount(existingCart));
         existingCart.setUpdatedAt(LocalDateTime.now());
 
