@@ -29,7 +29,7 @@ public class Cart {
     private double totalCGST;
     private double totalIGST;
     private double totalTax;
-    private Double totalAmount;
+    private Double grandTotal;
     private double totalTaxableValue;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

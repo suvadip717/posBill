@@ -151,7 +151,7 @@ public class CartServiceImpl implements CartService {
         cart.setTotalSGST(calculateTotalSGST(cart));
         cart.setTotalIGST(calculateTotalIGST(cart));
         cart.setTotalTaxableValue(calculateTotalTexableAmount(cart));
-        cart.setTotalAmount(calculateFinalAmount(cart));
+        cart.setGrandTotal(calculateFinalAmount(cart));
         cart.setCreatedAt(LocalDateTime.now());
         Cart newCart = calculateCartTotals(cart);
 
@@ -249,7 +249,7 @@ public class CartServiceImpl implements CartService {
         }
         // existingCart.setDiscountAmount(updatedCart.getDiscountAmount());
         existingCart.setTotalTaxableValue(calculateTotalTexableAmount(existingCart));
-        existingCart.setTotalAmount(calculateFinalAmount(existingCart));
+        existingCart.setGrandTotal(calculateFinalAmount(existingCart));
         existingCart.setUpdatedAt(LocalDateTime.now());
 
         Cart newCart = calculateCartTotals(existingCart);
@@ -320,7 +320,7 @@ public class CartServiceImpl implements CartService {
         // cart.setDiscountAmount(cart.getDiscountAmount());
         cart.setDeliveryCharge(cart.getDeliveryCharge());
         cart.setTotalTaxableValue(calculateTotalTexableAmount(cart));
-        cart.setTotalAmount(calculateFinalAmount(cart));
+        cart.setGrandTotal(calculateFinalAmount(cart));
         cart.setUpdatedAt(LocalDateTime.now());
         Cart newCart = calculateCartTotals(cart);
 
@@ -352,7 +352,7 @@ public class CartServiceImpl implements CartService {
         cart.setTotalCGST(calculateTotalCGST(cart));
         cart.setTotalSGST(calculateTotalSGST(cart));
         cart.setTotalIGST(calculateTotalIGST(cart));
-        cart.setTotalAmount(calculateFinalAmount(cart));
+        cart.setGrandTotal(calculateFinalAmount(cart));
         cart.setTotalTaxableValue(calculateTotalTexableAmount(cart));
         cart.setUpdatedAt(LocalDateTime.now());
         Cart newCart = calculateCartTotals(cart);
@@ -399,7 +399,7 @@ public class CartServiceImpl implements CartService {
             cart.setDiscountAmount(cart.getDiscountAmount());
         }
         cart.setTotalTax(calculateTotalTex(cart));
-        cart.setTotalAmount(calculateFinalAmount(cart));
+        cart.setGrandTotal(calculateFinalAmount(cart));
         cart.setTotalCGST(calculateTotalCGST(cart));
         cart.setTotalSGST(calculateTotalSGST(cart));
         cart.setTotalIGST(calculateTotalIGST(cart));

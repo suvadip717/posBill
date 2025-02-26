@@ -17,21 +17,17 @@ import com.tnx.posBilling.repository.TokenRepository;
 
 @Service
 public class WhatsappService {
-    // @Autowired
-    // private TokenRepository tokenRepository;
-    // private final String PHONE_NUMBER_ID = "your-phone-number-id";
-    @Value("${ACCESS_TOKEN}")
-    // Token accessToken = tokenRepository.findById(1).get();
-    private String ACCESS_TOKEN;
+    @Autowired
+    private TokenRepository tokenRepository;
     @Value("${API_URL}")
     private String API_URL;
 
     public void sendWhatsAppMessage(String to) {
+        Token accessToken = tokenRepository.findById(1).get();
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        // headers.setBearerAuth(accessToken.getValue());
-        headers.setBearerAuth(ACCESS_TOKEN);
+        headers.setBearerAuth(accessToken.getValue());
 
         Map<String, Object> body = Map.of(
                 "messaging_product", "whatsapp",

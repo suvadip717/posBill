@@ -14,37 +14,37 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tnx.posBilling.model.Company;
-import com.tnx.posBilling.service.CompanyService;
+import com.tnx.posBilling.service.impl.CompanyServiceImpl;
 
 @RestController
 @RequestMapping("/company")
 public class CompanyController {
     @Autowired
-    private CompanyService companyService;
+    private CompanyServiceImpl companyService;
 
     @PostMapping
     public ResponseEntity<Company> createCompany(@RequestBody Company company) {
-        return ResponseEntity.ok(companyService.saveCompany(company));
+        return companyService.saveCompany(company);
     }
 
     @GetMapping
     public ResponseEntity<List<Company>> getAllCompanies() {
-        return ResponseEntity.ok(companyService.getAllCompanies());
+        return companyService.getAllCompanies();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Company> getCompanyById(@PathVariable Long id) {
-        Company company = companyService.getCompanyById(id);
-        return ResponseEntity.ok(company);
+        return companyService.getCompanyById(id);
+        // return ResponseEntity.ok(company);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Company> updateCompany(@PathVariable Long id, @RequestBody Company updatedCompany) {
-        return ResponseEntity.ok(companyService.updateCompany(id, updatedCompany));
+        return companyService.updateCompany(id, updatedCompany);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteCompany(@PathVariable Long id) {
-        return ResponseEntity.ok(companyService.deleteCompany(id));
+        return companyService.deleteCompany(id);
     }
 }

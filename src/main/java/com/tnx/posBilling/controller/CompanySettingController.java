@@ -1,52 +1,46 @@
 package com.tnx.posBilling.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.tnx.posBilling.dto.CompanySettingDTO;
 import com.tnx.posBilling.model.CompanySettings;
-import com.tnx.posBilling.service.CompanySettingService;
+import com.tnx.posBilling.service.impl.CompanySettingServiceImpl;
 
 @RestController
-@RequestMapping("/company-settings")
+@RequestMapping("/api/company")
 public class CompanySettingController {
     @Autowired
-    private CompanySettingService companySettingsService;
-
-    @PostMapping
-    public ResponseEntity<CompanySettings> createCompanySetting(@RequestBody CompanySettings companySettings) {
-        return ResponseEntity.ok(companySettingsService.saveCompanySetting(companySettings));
-    }
+    private CompanySettingServiceImpl companySettingsService;
 
     @GetMapping
-    public ResponseEntity<List<CompanySettings>> getAllCompanySettings() {
-        return ResponseEntity.ok(companySettingsService.getAllCompanySettings());
+    public ResponseEntity<List<CompanySettingDTO>> getAllCompanySettings() {
+        return companySettingsService.getAllCompanySettings();
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<CompanySettings> getCompanySettingById(@PathVariable Long id) {
-        CompanySettings setting = companySettingsService.getCompanySettingById(id);
-        return ResponseEntity.ok(setting);
+    @PutMapping("/{companyId}/settings/{settingId}")
+    public ResponseEntity<CompanySettings> updateCompanySetting(
+            @PathVariable Long companyId,
+            @PathVariable Long settingId,
+            @RequestBody Map<String, String> requestBody) {
+
+        String currentValue = requestBody.get("currentValue");
+
+        return companySettingsService.updateCompanySetting(companyId, settingId,
+                currentValue);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<CompanySettings> updateCompanySetting(@PathVariable Long id,
-            @RequestBody CompanySettings updatedSetting) {
-        return ResponseEntity.ok(companySettingsService.updateCompanySetting(id, updatedSetting));
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCompanySetting(@PathVariable Long id) {
-        companySettingsService.deleteCompanySetting(id);
-        return ResponseEntity.noContent().build();
+    @GetMapping("/settings/{companyId}")
+    public ResponseEntity<CompanySettingDTO> getCompanySettings(@PathVariable Long companyId) {
+        return companySettingsService.getAllSettingsForCompany(companyId);
     }
 }

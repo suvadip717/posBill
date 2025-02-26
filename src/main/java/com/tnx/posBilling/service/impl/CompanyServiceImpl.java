@@ -1,36 +1,40 @@
-package com.tnx.posBilling.service;
+package com.tnx.posBilling.service.impl;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.tnx.posBilling.exceptions.ResourceNotFoundException;
 import com.tnx.posBilling.model.Company;
 import com.tnx.posBilling.repository.CompanyRepository;
+import com.tnx.posBilling.service.interfaces.CompanyService;
 
 @Service
-public class CompanyService {
+public class CompanyServiceImpl implements CompanyService {
     @Autowired
     private CompanyRepository companyRepository;
 
-    public Company saveCompany(Company company) {
+    public ResponseEntity<Company> saveCompany(Company company) {
         company.setCreatedAt(LocalDateTime.now());
-        return companyRepository.save(company);
+        return new ResponseEntity<>(companyRepository.save(company), HttpStatus.CREATED);
     }
 
-    public List<Company> getAllCompanies() {
-        return companyRepository.findAll();
+    public ResponseEntity<List<Company>> getAllCompanies() {
+        return ResponseEntity.ok(companyRepository.findAll());
     }
 
-    public Company getCompanyById(Long id) {
-        return companyRepository.findById(id)
+    public ResponseEntity<Company> getCompanyById(Long id) {
+        Company company = companyRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Company name is not found"));
+        return ResponseEntity.ok(company);
     }
 
-    public Company updateCompany(Long id, Company updatedCompany) {
-        return companyRepository.findById(id).map(company -> {
+    public ResponseEntity<Company> updateCompany(Long id, Company updatedCompany) {
+        Company existCompany = companyRepository.findById(id).map(company -> {
             company.setName(updatedCompany.getName());
             company.setEmail(updatedCompany.getEmail());
             company.setPhone(updatedCompany.getPhone());
@@ -38,14 +42,15 @@ public class CompanyService {
             company.setUpdatedAt(LocalDateTime.now());
             return companyRepository.save(company);
         }).orElseThrow(() -> new ResourceNotFoundException("Company not found"));
+        return ResponseEntity.ok(existCompany);
     }
 
-    public String deleteCompany(Long id) {
+    public ResponseEntity<String> deleteCompany(Long id) {
         Company company = companyRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Company is not found"));
         if (company != null) {
             companyRepository.deleteById(id);
         }
-        return "Company Deleted";
+        return ResponseEntity.ok("Company Deleted");
     }
 }

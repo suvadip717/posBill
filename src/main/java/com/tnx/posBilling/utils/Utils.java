@@ -1,11 +1,17 @@
 package com.tnx.posBilling.utils;
 
 import java.util.Collections;
+import java.util.List;
 
 import com.tnx.posBilling.dto.CategoryDTO;
 import com.tnx.posBilling.dto.CategoryRootDTO;
+import com.tnx.posBilling.dto.CompanyDTO;
+import com.tnx.posBilling.dto.CompanySettingDTO;
 import com.tnx.posBilling.dto.ProductDTO;
+import com.tnx.posBilling.dto.SettingDTO;
+import com.tnx.posBilling.model.ApplicationSetting;
 import com.tnx.posBilling.model.Category;
+import com.tnx.posBilling.model.Company;
 import com.tnx.posBilling.model.Product;
 
 public class Utils {
@@ -56,4 +62,35 @@ public class Utils {
         return categoryDTO;
     }
 
+    public static CompanyDTO mapCompanyDTOtoCompany(Company company) {
+        CompanyDTO companyDTO = new CompanyDTO();
+        companyDTO.setId(company.getId());
+        companyDTO.setName(company.getName());
+        companyDTO.setEmail(company.getEmail());
+        companyDTO.setPhone(company.getPhone());
+        companyDTO.setAddress(company.getAddress());
+        companyDTO.setCreatedAt(company.getCreatedAt());
+        companyDTO.setUpdatedAt(company.getUpdatedAt());
+        return companyDTO;
+    }
+
+    public static SettingDTO mapSettingDTOtoApplicationSetting(ApplicationSetting setting, String currentValue) {
+        SettingDTO settingDTO = new SettingDTO();
+        settingDTO.setId(setting.getId());
+        settingDTO.setSettingKey(setting.getSettingKey());
+        settingDTO.setDescription(setting.getDescription());
+        settingDTO.setSettingType(setting.getSettingType().name());
+        settingDTO.setOptions(setting.getOptions());
+        settingDTO.setDefaultValue(setting.getDefaultValue());
+        settingDTO.setCurrentValue(currentValue);
+        return settingDTO;
+    }
+
+    public static CompanySettingDTO mapCompanySettingDTOtoCompanySetting(CompanyDTO company,
+            List<SettingDTO> settings) {
+        CompanySettingDTO companySettingDTO = new CompanySettingDTO();
+        companySettingDTO.setCompany(company);
+        companySettingDTO.setSettings(settings);
+        return companySettingDTO;
+    }
 }

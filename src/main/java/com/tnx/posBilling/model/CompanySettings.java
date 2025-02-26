@@ -19,7 +19,7 @@ public class CompanySettings {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "company_id", nullable = false)
+    @JoinColumn(name = "company_id")
     private Company company;
 
     @ManyToOne
@@ -27,5 +27,5 @@ public class CompanySettings {
     private ApplicationSetting setting;
 
     @Column(columnDefinition = "TEXT")
-    private String currentValue; // Can store Yes/No, Dropdown selection, or JSON array for multiselect
+    private String currentValue;
 }

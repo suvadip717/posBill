@@ -14,39 +14,37 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tnx.posBilling.model.ApplicationSetting;
-import com.tnx.posBilling.service.ApplicationSettingService;
+import com.tnx.posBilling.service.impl.ApplicationSettingServiceImpl;
 
 @RestController
-@RequestMapping("/application-setting")
+@RequestMapping("/api/settings")
 public class ApplicationSettingController {
     @Autowired
-    private ApplicationSettingService settingService;
+    private ApplicationSettingServiceImpl settingService;
 
     @PostMapping
     public ResponseEntity<ApplicationSetting> createSetting(@RequestBody ApplicationSetting setting) {
-        return ResponseEntity.ok(settingService.saveSetting(setting));
+        return settingService.saveSetting(setting);
     }
 
     @GetMapping
     public ResponseEntity<List<ApplicationSetting>> getAllSettings() {
-        return ResponseEntity.ok(settingService.getAllSettings());
+        return settingService.getAllSettings();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ApplicationSetting> getSettingById(@PathVariable Long id) {
-        ApplicationSetting setting = settingService.getSettingById(id);
-        return ResponseEntity.ok(setting);
+        return settingService.getSettingById(id);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ApplicationSetting> updateSetting(@PathVariable Long id,
             @RequestBody ApplicationSetting setting) {
-        return ResponseEntity.ok(settingService.updateSetting(id, setting));
+        return settingService.updateSetting(id, setting);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteSetting(@PathVariable Long id) {
-        settingService.deleteSetting(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<String> deleteSetting(@PathVariable Long id) {
+        return settingService.deleteSetting(id);
     }
 }

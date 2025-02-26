@@ -1,6 +1,9 @@
 package com.tnx.posBilling.model;
 
+import java.util.List;
+
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -14,7 +17,6 @@ import lombok.Data;
 @Data
 @Table(name = "application_settings")
 public class ApplicationSetting {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -26,10 +28,11 @@ public class ApplicationSetting {
     private String description;
 
     @Enumerated(EnumType.STRING)
-    private SettingType settingType; // Enum for BOOLEAN, DROPDOWN, MULTISELECT
+    private SettingType settingType;
 
     @Column(columnDefinition = "JSON")
-    private String options; // Stores dropdown/multiselect options in JSON format
+    @Convert(converter = StringListConverter.class) // Use the converter
+    private List<String> options;
 
     private String defaultValue;
 
