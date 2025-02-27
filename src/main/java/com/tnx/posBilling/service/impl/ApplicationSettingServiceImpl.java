@@ -21,16 +21,19 @@ public class ApplicationSettingServiceImpl implements ApplicationSettingService 
         return new ResponseEntity<>(settingRepository.save(setting), HttpStatus.CREATED);
     }
 
+    @Override
     public ResponseEntity<List<ApplicationSetting>> getAllSettings() {
         return ResponseEntity.ok(settingRepository.findAll());
     }
 
+    @Override
     public ResponseEntity<ApplicationSetting> getSettingById(Long id) {
         ApplicationSetting applicationSetting = settingRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Application Setting is not found"));
         return ResponseEntity.ok(applicationSetting);
     }
 
+    @Override
     public ResponseEntity<ApplicationSetting> updateSetting(Long id, ApplicationSetting updatedSetting) {
         ApplicationSetting applicationSetting = settingRepository.findById(id).map(setting -> {
             setting.setSettingKey(updatedSetting.getSettingKey());
@@ -44,6 +47,7 @@ public class ApplicationSettingServiceImpl implements ApplicationSettingService 
         return ResponseEntity.ok(applicationSetting);
     }
 
+    @Override
     public ResponseEntity<String> deleteSetting(Long id) {
         ApplicationSetting setting = settingRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Setting is not found"));

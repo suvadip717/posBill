@@ -32,10 +32,12 @@ public class CompanySettingServiceImpl implements CompanySettingService {
     @Autowired
     private ApplicationSettingRepository aRepository;
 
+    @Override
     public ResponseEntity<CompanySettings> saveCompanySetting(CompanySettings companySettings) {
         return new ResponseEntity<>(companySettingsRepository.save(companySettings), HttpStatus.OK);
     }
 
+    @Override
     public ResponseEntity<CompanySettings> updateCompanySetting(Long companyId, Long settingId,
             String currentValue) {
         // Find company
@@ -62,6 +64,7 @@ public class CompanySettingServiceImpl implements CompanySettingService {
         return ResponseEntity.ok(companySettingsRepository.save(companySettings));
     }
 
+    @Override
     public ResponseEntity<CompanySettingDTO> getAllSettingsForCompany(Long companyId) {
         List<ApplicationSetting> allSettings = aRepository.findAll();
         List<CompanySettings> companySettings = companySettingsRepository.findByCompanyId(companyId);
@@ -90,6 +93,7 @@ public class CompanySettingServiceImpl implements CompanySettingService {
         return ResponseEntity.ok(companySettingDTO);
     }
 
+    @Override
     public ResponseEntity<List<CompanySettingDTO>> getAllCompanySettings() {
         List<Company> companies = companyRepository.findAll();
 
