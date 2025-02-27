@@ -16,6 +16,18 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
 
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: suvadip.webshark@gmail.com
+    password: olmf flzh iecb axaj
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
 server:
   port: 8888
 
