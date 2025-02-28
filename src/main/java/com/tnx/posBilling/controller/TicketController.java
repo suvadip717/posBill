@@ -47,7 +47,7 @@ public class TicketController {
         return ticketService.allToken();
     }
 
-    @PutMapping("/update/{id}")
+    @PutMapping(path = { "/update/{id}" }, consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
     public ResponseEntity<Ticket> updateTicket(@PathVariable Long id, @RequestParam String email,
             @RequestParam String phoneNumber,
             @RequestParam String subject,

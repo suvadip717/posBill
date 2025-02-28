@@ -61,7 +61,7 @@ public class ProductController {
         return productService.deleteProduct(id);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(path = { "/{id}" }, consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
     public ResponseEntity<ProductDTO> updateProduct(
             @PathVariable String id,
             @RequestParam String productCode,

@@ -53,7 +53,7 @@ public class CategoryController {
         return categoryService.saveCategory(categoryLabel, imageUrl, parentCategory);
     }
 
-    @PutMapping("/{categoryId}")
+    @PutMapping(path = { "/{categoryId}" }, consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
     public ResponseEntity<CategoryDTO> updateCategory(
             @PathVariable Long categoryId,
             @RequestParam String categoryLabel,
