@@ -68,6 +68,15 @@ public class CartServiceImpl implements CartService {
                 + cart.getDeliveryCharge() - cart.getDiscountAmount();
     }
 
+    public double calculateGrandAmount(Cart cart) {
+        return Math.round(cart.getItems().stream().mapToDouble(CartItem::getTotalAmount).sum()
+                + cart.getDeliveryCharge() - cart.getDiscountAmount());
+    }
+
+    public double checkRoundOffNegative(double roundOff) {
+        return roundOff >= 0 ? roundOff : roundOff * (-1);
+    }
+
     public double discountAmountPercent(Cart cart) {
         double totalAmount = calculateFinalAmount(cart) - cart.getDeliveryCharge();
         return totalAmount * cart.getDiscountPercent() / 100;
@@ -151,7 +160,8 @@ public class CartServiceImpl implements CartService {
         cart.setTotalSGST(calculateTotalSGST(cart));
         cart.setTotalIGST(calculateTotalIGST(cart));
         cart.setTotalTaxableValue(calculateTotalTexableAmount(cart));
-        cart.setGrandTotal(calculateFinalAmount(cart));
+        cart.setRoundingOff(checkRoundOffNegative(calculateFinalAmount(cart) - calculateGrandAmount(cart)));
+        cart.setGrandTotal(calculateGrandAmount(cart));
         cart.setCreatedAt(LocalDateTime.now());
         Cart newCart = calculateCartTotals(cart);
 
@@ -249,7 +259,10 @@ public class CartServiceImpl implements CartService {
         }
         // existingCart.setDiscountAmount(updatedCart.getDiscountAmount());
         existingCart.setTotalTaxableValue(calculateTotalTexableAmount(existingCart));
-        existingCart.setGrandTotal(calculateFinalAmount(existingCart));
+        existingCart.setRoundingOff(
+                checkRoundOffNegative(calculateFinalAmount(existingCart) - calculateGrandAmount(existingCart)));
+        existingCart.setGrandTotal(calculateGrandAmount(existingCart));
+        // existingCart.setGrandTotal(calculateFinalAmount(existingCart));
         existingCart.setUpdatedAt(LocalDateTime.now());
 
         Cart newCart = calculateCartTotals(existingCart);
@@ -320,7 +333,9 @@ public class CartServiceImpl implements CartService {
         // cart.setDiscountAmount(cart.getDiscountAmount());
         cart.setDeliveryCharge(cart.getDeliveryCharge());
         cart.setTotalTaxableValue(calculateTotalTexableAmount(cart));
-        cart.setGrandTotal(calculateFinalAmount(cart));
+        cart.setRoundingOff(checkRoundOffNegative(calculateFinalAmount(cart) - calculateGrandAmount(cart)));
+        cart.setGrandTotal(calculateGrandAmount(cart));
+        // cart.setGrandTotal(calculateFinalAmount(cart));
         cart.setUpdatedAt(LocalDateTime.now());
         Cart newCart = calculateCartTotals(cart);
 
@@ -352,8 +367,10 @@ public class CartServiceImpl implements CartService {
         cart.setTotalCGST(calculateTotalCGST(cart));
         cart.setTotalSGST(calculateTotalSGST(cart));
         cart.setTotalIGST(calculateTotalIGST(cart));
-        cart.setGrandTotal(calculateFinalAmount(cart));
         cart.setTotalTaxableValue(calculateTotalTexableAmount(cart));
+        cart.setRoundingOff(checkRoundOffNegative(calculateFinalAmount(cart) - calculateGrandAmount(cart)));
+        cart.setGrandTotal(calculateGrandAmount(cart));
+        // cart.setGrandTotal(calculateFinalAmount(cart));
         cart.setUpdatedAt(LocalDateTime.now());
         Cart newCart = calculateCartTotals(cart);
 
@@ -399,11 +416,13 @@ public class CartServiceImpl implements CartService {
             cart.setDiscountAmount(cart.getDiscountAmount());
         }
         cart.setTotalTax(calculateTotalTex(cart));
-        cart.setGrandTotal(calculateFinalAmount(cart));
         cart.setTotalCGST(calculateTotalCGST(cart));
         cart.setTotalSGST(calculateTotalSGST(cart));
         cart.setTotalIGST(calculateTotalIGST(cart));
         cart.setTotalTaxableValue(calculateTotalTexableAmount(cart));
+        // cart.setGrandTotal(calculateFinalAmount(cart));
+        cart.setRoundingOff(checkRoundOffNegative(calculateFinalAmount(cart) - calculateGrandAmount(cart)));
+        cart.setGrandTotal(calculateGrandAmount(cart));
         cart.setUpdatedAt(LocalDateTime.now());
         Cart newCart = calculateCartTotals(cart);
 

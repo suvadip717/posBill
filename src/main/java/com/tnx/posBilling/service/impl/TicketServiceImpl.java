@@ -1,6 +1,6 @@
-package com.tnx.posBilling.service;
+package com.tnx.posBilling.service.impl;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Random;
 
@@ -15,9 +15,12 @@ import com.tnx.posBilling.model.Ticket;
 import com.tnx.posBilling.model.User;
 import com.tnx.posBilling.repository.TicketRepository;
 import com.tnx.posBilling.repository.UserRepository;
+import com.tnx.posBilling.service.AwsS3Service;
+import com.tnx.posBilling.service.SendEmailService;
+import com.tnx.posBilling.service.interfaces.TicketService;
 
 @Service
-public class TicketService {
+public class TicketServiceImpl implements TicketService {
     @Autowired
     private TicketRepository ticketRepository;
 
@@ -43,9 +46,10 @@ public class TicketService {
         return sb.toString();
     }
 
+    @Override
     public ResponseEntity<Ticket> createTicket(String email, String phoneNumber, String subject,
             String description,
-            String issue, String subIssue, MultipartFile photo) {
+            String issue, String subIssue, String prefix, MultipartFile photo) {
         Ticket newTicket = new Ticket();
         try {
             // Map the user JSON to a User object
@@ -56,7 +60,7 @@ public class TicketService {
             String imageUrl = aS3Service.saveImageToS3(photo);
 
             // Set ticket fields
-            newTicket.setReferenceId("BBPlus" + generateRandomString());
+            newTicket.setReferenceId(prefix + generateRandomString());
             newTicket.setEmail(email);
             newTicket.setPhoneNumber(phoneNumber);
             newTicket.setSubject(subject);
@@ -65,8 +69,8 @@ public class TicketService {
             newTicket.setSubIssue(subIssue);
             newTicket.setAttachMent(imageUrl);
             newTicket.setStatus("Pending");
-            newTicket.setCreatedAt(LocalDateTime.now());
-            newTicket.setExpectedDate(LocalDateTime.now().plusDays(8));
+            newTicket.setCreatedAt(LocalDate.now());
+            newTicket.setExpectedDate(LocalDate.now().plusDays(8));
             mailService.sendVerificationEmail(email, subject, newTicket.getExpectedDate(), newTicket.getReferenceId());
             newTicket.setCreatedByUser(myUser);
 
@@ -78,6 +82,7 @@ public class TicketService {
         }
     }
 
+    @Override
     public ResponseEntity<Ticket> updateTicket(Long id, String email, String phoneNumber, String subject,
             String description,
             String issue, String subIssue, MultipartFile photo, String status) {
@@ -91,22 +96,25 @@ public class TicketService {
             ticket.setSubIssue(subIssue);
             ticket.setAttachMent(imageUrl);
             ticket.setStatus(status);
-            ticket.setUpdatedAt(LocalDateTime.now());
+            ticket.setUpdatedAt(LocalDate.now());
             return ticketRepository.save(ticket);
         }).orElseThrow(() -> new RuntimeException("Ticket not found"));
         return ResponseEntity.ok(exTicket);
     }
 
+    @Override
     public List<Ticket> allToken() {
         return ticketRepository.findAll();
     }
 
+    @Override
     public ResponseEntity<Ticket> getTicketById(Long id) {
         Ticket ticket = ticketRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Ticket not found"));
         return ResponseEntity.ok(ticket);
     }
 
+    @Override
     public ResponseEntity<String> deleteTicket(Long id) {
         if (!ticketRepository.existsById(id)) {
             throw new ResourceNotFoundException("Ticket not found");
@@ -115,15 +123,17 @@ public class TicketService {
         return ResponseEntity.ok("Ticket deleted");
     }
 
+    @Override
     public ResponseEntity<List<Ticket>> getTicketsByUser(Integer userId) {
         userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
         return ResponseEntity.ok(ticketRepository.findByCreatedByUserId(userId));
     }
 
+    @Override
     public ResponseEntity<Ticket> resolvedTicket(Long id) {
         Ticket exTicket = ticketRepository.findById(id).map(ticket -> {
             ticket.setStatus("Solved");
-            ticket.setResolvedAt(LocalDateTime.now());
+            ticket.setResolvedAt(LocalDate.now());
             return ticketRepository.save(ticket);
         }).orElseThrow(() -> new RuntimeException("Ticket not found"));
         return ResponseEntity.ok(exTicket);

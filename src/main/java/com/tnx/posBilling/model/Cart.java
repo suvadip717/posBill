@@ -30,6 +30,7 @@ public class Cart {
     private double totalIGST;
     private double totalTax;
     private Double grandTotal;
+    private double roundingOff;
     private double totalTaxableValue;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

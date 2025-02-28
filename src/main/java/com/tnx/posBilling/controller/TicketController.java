@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.tnx.posBilling.model.Ticket;
-import com.tnx.posBilling.service.TicketService;
+import com.tnx.posBilling.service.impl.TicketServiceImpl;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 @RequestMapping("/api/ticket")
 public class TicketController {
     @Autowired
-    private TicketService ticketService;
+    private TicketServiceImpl ticketService;
 
     @PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
     public ResponseEntity<Ticket> creatTicket(
@@ -35,10 +35,11 @@ public class TicketController {
             @RequestParam String description,
             @RequestParam String issue,
             @RequestParam String subIssue,
+            @RequestParam String prefix,
             @RequestParam MultipartFile photo
     // @RequestParam Integer userId
     ) {
-        return ticketService.createTicket(email, phoneNumber, subject, description, issue, subIssue, photo);
+        return ticketService.createTicket(email, phoneNumber, subject, description, issue, subIssue, prefix, photo);
     }
 
     @GetMapping
@@ -62,8 +63,7 @@ public class TicketController {
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> deleteTicket(@PathVariable Long id) {
-        ticketService.deleteTicket(id);
-        return ResponseEntity.noContent().build();
+        return ticketService.deleteTicket(id);
     }
 
     @GetMapping("/{id}")

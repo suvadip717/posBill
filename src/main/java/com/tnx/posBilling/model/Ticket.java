@@ -1,6 +1,6 @@
 package com.tnx.posBilling.model;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
@@ -29,10 +29,10 @@ public class Ticket {
     private String description;
     private String attachMent;
     private String status;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private LocalDateTime expectedDate;
-    private LocalDateTime resolvedAt;
+    private LocalDate createdAt;
+    private LocalDate updatedAt;
+    private LocalDate expectedDate;
+    private LocalDate resolvedAt;
 
     @ManyToOne
     @JsonBackReference
