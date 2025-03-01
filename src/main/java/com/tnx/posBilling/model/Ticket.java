@@ -19,15 +19,21 @@ public class Ticket {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(unique = true, updatable = false)
+    @Column(unique = true, updatable = false, length = 30)
     private String referenceId;
+    @Column(length = 20)
     private String email;
+    @Column(length = 20)
     private String phoneNumber;
+    @Column(length = 30)
     private String subject;
+    @Column(length = 30)
     private String issue;
     private String subIssue;
+    @Column(length = 100)
     private String description;
     private String attachMent;
+    @Column(length = 40)
     private String status;
     private LocalDate createdAt;
     private LocalDate updatedAt;

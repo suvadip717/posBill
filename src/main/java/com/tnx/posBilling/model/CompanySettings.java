@@ -26,6 +26,6 @@ public class CompanySettings {
     @JoinColumn(name = "setting_id", nullable = false)
     private ApplicationSetting setting;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT", length = 40)
     private String currentValue;
 }

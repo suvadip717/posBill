@@ -14,17 +14,23 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Product {
     @Id
+    @Column(length = 30)
     private String productId;
 
+    @Column(length = 30)
     private String productCode;
+    @Column(length = 40)
     private String barCode;
+    @Column(length = 40)
     private String productLabel;
     private String imageUrl;
     private double unitPrice;
     private double mrp;
     private double discountAmount;
     private double discountPercentage;
+    @Column(length = 20)
     private String unit;
+    @Column(length = 40)
     private String skuCode;
     private double taxPercentage;
     private Integer stockQuantity;

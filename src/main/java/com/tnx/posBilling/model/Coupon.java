@@ -23,9 +23,9 @@ public class Coupon {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(unique = true, nullable = false)
+    @Column(unique = true, nullable = false, length = 20)
     private String couponCode;
-
+    @Column(length = 30)
     private String description;
     private double discountInPercent;
     private double discountInAmount;
@@ -42,7 +42,7 @@ public class Coupon {
 
     @Enumerated(EnumType.STRING)
     private CustomerType customerType;
-
+    @Column(length = 30)
     private String segmentName; // Used if customerType = SEGMENT
     private Integer customerId; // Used if customerType = INDIVIDUAL
 

@@ -21,10 +21,10 @@ public class ApplicationSetting {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false)
+    @Column(unique = true, nullable = false, length = 40)
     private String settingKey;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT", length = 100)
     private String description;
 
     @Enumerated(EnumType.STRING)
@@ -34,6 +34,7 @@ public class ApplicationSetting {
     @Convert(converter = StringListConverter.class) // Use the converter
     private List<String> options;
 
+    @Column(length = 40)
     private String defaultValue;
 
     public enum SettingType {

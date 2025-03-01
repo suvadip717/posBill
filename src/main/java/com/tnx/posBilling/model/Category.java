@@ -20,6 +20,7 @@ public class Category {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long categoryId;
 
+    @Column(length = 40)
     private String categoryLabel;
     private String imageUrl;
     private LocalDateTime createdAt;
