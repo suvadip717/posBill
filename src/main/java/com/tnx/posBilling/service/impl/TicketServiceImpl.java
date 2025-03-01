@@ -1,6 +1,7 @@
 package com.tnx.posBilling.service.impl;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Random;
 
@@ -69,7 +70,7 @@ public class TicketServiceImpl implements TicketService {
             newTicket.setSubIssue(subIssue);
             newTicket.setAttachMent(imageUrl);
             newTicket.setStatus("Pending");
-            newTicket.setCreatedAt(LocalDate.now());
+            newTicket.setCreatedAt(LocalDateTime.now());
             newTicket.setExpectedDate(LocalDate.now().plusDays(8));
             mailService.sendVerificationEmail(email, subject, newTicket.getExpectedDate(), newTicket.getReferenceId());
             newTicket.setCreatedByUser(myUser);

@@ -1,6 +1,7 @@
 package com.tnx.posBilling.model;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
@@ -35,7 +36,7 @@ public class Ticket {
     private String attachMent;
     @Column(length = 40)
     private String status;
-    private LocalDate createdAt;
+    private LocalDateTime createdAt;
     private LocalDate updatedAt;
     private LocalDate expectedDate;
     private LocalDate resolvedAt;
