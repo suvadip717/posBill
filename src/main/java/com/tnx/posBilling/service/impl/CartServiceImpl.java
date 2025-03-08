@@ -392,7 +392,9 @@ public class CartServiceImpl implements CartService {
             cart.getItems().remove(cartItem);
             cartItemRepository.delete(cartItem);
         } else {
-            double discountAmount = cartItem.getRate() * cartItem.getDiscountPercentage() / 100;
+            // double discountAmount = cartItem.getRate() *
+            // cartItem.getDiscountPercentage();
+            double discountAmount = cartItem.getDiscount();
             double totalDiscountAmount = discountAmount * quantity;
             double taxAbleAmount = (cartItem.getRate() - discountAmount) * quantity;
             double taxAmount = taxAbleAmount * (cartItem.getTaxPercnt() / 100);

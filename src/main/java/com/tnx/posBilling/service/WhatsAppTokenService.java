@@ -28,7 +28,7 @@ public class WhatsAppTokenService {
 
     // @Scheduled(fixedRate = 5184000000L)
     // @Scheduled(cron = "0 * * * * ?")
-    @Scheduled(cron = "0 * * * */2 ?")
+    @Scheduled(cron = "* * 0 * */2 ?")
     public void refreshAccessToken() {
 
         Token existToken = tokenRepository.findById(1).get();
