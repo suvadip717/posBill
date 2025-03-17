@@ -59,6 +59,10 @@ public class CartServiceImpl implements CartService {
         return cart.getItems().stream().mapToDouble(CartItem::getIGST).sum();
     }
 
+    public double calculateTotalSubTotal(Cart cart) {
+        return cart.getItems().stream().mapToDouble(CartItem::getSubTotal).sum();
+    }
+
     public double calculateTotalTexableAmount(Cart cart) {
         return cart.getItems().stream().mapToDouble(CartItem::getTaxableValue).sum();
     }
@@ -134,6 +138,7 @@ public class CartServiceImpl implements CartService {
             double sgst = taxAmount / 2;
             double igst = 0.0;
             double totalAmount = taxAbleAmount + taxAmount;
+            double subTotal = product.getUnitPrice() * item.getQuantity();
 
             item.setProduct(product);
             item.setDiscountPercentage(product.getDiscountPercentage());
@@ -146,6 +151,7 @@ public class CartServiceImpl implements CartService {
             item.setCGST(cgst);
             item.setSGST(sgst);
             item.setIGST(igst);
+            item.setSubTotal(subTotal);
             item.setTotalAmount(totalAmount);
             return item;
         }).collect(Collectors.toList());
@@ -159,6 +165,7 @@ public class CartServiceImpl implements CartService {
         cart.setTotalCGST(calculateTotalCGST(cart));
         cart.setTotalSGST(calculateTotalSGST(cart));
         cart.setTotalIGST(calculateTotalIGST(cart));
+        cart.setGrandSubTotal(calculateTotalSubTotal(cart));
         cart.setTotalTaxableValue(calculateTotalTexableAmount(cart));
         cart.setRoundingOff(checkRoundOffNegative(calculateFinalAmount(cart) - calculateGrandAmount(cart)));
         cart.setGrandTotal(calculateGrandAmount(cart));
@@ -224,6 +231,7 @@ public class CartServiceImpl implements CartService {
             double taxAbleAmount = (item.getRate() - discountAmount) * item.getQuantity();
             double taxAmount = taxAbleAmount * (item.getTaxPercnt() / 100);
             double totalAmount = taxAbleAmount + taxAmount;
+            double subTotal = item.getRate() * item.getQuantity();
 
             item.setProduct(product);
             item.setCart(existingCart);
@@ -232,6 +240,7 @@ public class CartServiceImpl implements CartService {
             // item.setRate(product.getUnitPrice());
             item.setTotalDiscount(totalDiscountAmount);
             item.setTaxableValue(taxAbleAmount);
+            item.setSubTotal(subTotal);
             // item.setTaxPercnt(product.getTaxPercentage());
             item.setTaxAmount(taxAmount);
             item.setCGST(taxAmount / 2);
@@ -250,6 +259,7 @@ public class CartServiceImpl implements CartService {
         existingCart.setTotalCGST(calculateTotalCGST(existingCart));
         existingCart.setTotalSGST(calculateTotalSGST(existingCart));
         existingCart.setTotalIGST(calculateTotalIGST(existingCart));
+        existingCart.setGrandSubTotal(calculateTotalSubTotal(existingCart));
         existingCart.setDiscountPercent(updatedCart.getDiscountPercent());
         existingCart.setDeliveryCharge(updatedCart.getDeliveryCharge());
         if (updatedCart.getDiscountPercent() != 0) {
@@ -311,7 +321,9 @@ public class CartServiceImpl implements CartService {
         // double taxAmount = taxAbleAmount * (product.getTaxPercentage() / 100);
         double taxAmount = taxAbleAmount * (taxPercnt / 100);
         cartItem.setTaxableValue(taxAbleAmount);
+        double subTotal = rate * cartItem.getQuantity();
         // cartItem.setTaxPercnt(product.getTaxPercentage());
+        cartItem.setSubTotal(subTotal);
         cartItem.setTaxPercnt(taxPercnt);
         cartItem.setTaxAmount(taxAmount);
         cartItem.setCGST(taxAmount / 2);
@@ -335,6 +347,7 @@ public class CartServiceImpl implements CartService {
         cart.setTotalTaxableValue(calculateTotalTexableAmount(cart));
         cart.setRoundingOff(checkRoundOffNegative(calculateFinalAmount(cart) - calculateGrandAmount(cart)));
         cart.setGrandTotal(calculateGrandAmount(cart));
+        cart.setGrandSubTotal(calculateTotalSubTotal(cart));
         // cart.setGrandTotal(calculateFinalAmount(cart));
         cart.setUpdatedAt(LocalDateTime.now());
         Cart newCart = calculateCartTotals(cart);
@@ -367,6 +380,7 @@ public class CartServiceImpl implements CartService {
         cart.setTotalCGST(calculateTotalCGST(cart));
         cart.setTotalSGST(calculateTotalSGST(cart));
         cart.setTotalIGST(calculateTotalIGST(cart));
+        cart.setGrandSubTotal(calculateTotalSubTotal(cart));
         cart.setTotalTaxableValue(calculateTotalTexableAmount(cart));
         cart.setRoundingOff(checkRoundOffNegative(calculateFinalAmount(cart) - calculateGrandAmount(cart)));
         cart.setGrandTotal(calculateGrandAmount(cart));
@@ -399,11 +413,13 @@ public class CartServiceImpl implements CartService {
             double taxAbleAmount = (cartItem.getRate() - discountAmount) * quantity;
             double taxAmount = taxAbleAmount * (cartItem.getTaxPercnt() / 100);
             double totalAmount = taxAbleAmount + taxAmount;
+            double subTotal = cartItem.getRate() * quantity;
 
             cartItem.setQuantity(quantity);
             cartItem.setTotalDiscount(totalDiscountAmount);
             cartItem.setTaxableValue(taxAbleAmount);
             cartItem.setTaxAmount(taxAmount);
+            cartItem.setSubTotal(subTotal);
             cartItem.setCGST(taxAmount / 2);
             cartItem.setSGST(taxAmount / 2);
             cartItem.setIGST(0.0);
@@ -425,6 +441,7 @@ public class CartServiceImpl implements CartService {
         // cart.setGrandTotal(calculateFinalAmount(cart));
         cart.setRoundingOff(checkRoundOffNegative(calculateFinalAmount(cart) - calculateGrandAmount(cart)));
         cart.setGrandTotal(calculateGrandAmount(cart));
+        cart.setGrandSubTotal(calculateTotalSubTotal(cart));
         cart.setUpdatedAt(LocalDateTime.now());
         Cart newCart = calculateCartTotals(cart);
 

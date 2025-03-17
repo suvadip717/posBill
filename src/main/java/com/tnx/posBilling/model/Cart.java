@@ -32,6 +32,7 @@ public class Cart {
     private Double grandTotal;
     private double roundingOff;
     private double totalTaxableValue;
+    private double grandSubTotal;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

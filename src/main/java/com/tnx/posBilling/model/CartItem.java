@@ -24,6 +24,7 @@ public class CartItem {
     private double taxAmount;
     private double totalDiscount;
     private double taxableValue;
+    private double subTotal;
     private double taxPercnt;
     private double sGST;
     private double cGST;
