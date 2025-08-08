@@ -19,7 +19,7 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: suvadip.webshark@gmail.com
+    username: suvadip.web*****@gmail.com
     password: olmf flzh iecb axaj
     properties:
       mail:
@@ -35,11 +35,11 @@ bucket-name: pos-bill-application
 aws:
   s3:
     access:
-      key: AKIAZ7SAK3YFYV3YOVGV
+      key: AKIAZ7SAK3YFYV3YOHJD73
     secret:
-      key: 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
+      key: kEjYotDygwQtewe8PIT52eSgp88349384034hjdf
 
 API_URL: https://graph.facebook.com/v22.0/557890804076465/messages
 
 APP_ID: 1715159599062970
-APP_SECRET: 33b105e854945d3cae4b6d7e3907158c
+APP_SECRET: 33b105e854945d3cae4b6d7e390715hdjhd
